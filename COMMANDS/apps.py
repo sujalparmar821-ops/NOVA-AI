@@ -1,32 +1,33 @@
 """
 COMMANDS/apps.py
+----------------
+Launch Windows applications.
 """
 
 import subprocess
 
-from VOICE.speak import speaker
 
-APPS = {
-    "calculator": "calc.exe",
-    "notepad": "notepad.exe",
-    "paint": "mspaint.exe",
-    "command prompt": "cmd.exe",
-    "powershell": "powershell.exe",
-}
+class Apps:
+
+    APPS = {
+        "notepad": "notepad.exe",
+        "calculator": "calc.exe",
+        "paint": "mspaint.exe",
+        "command prompt": "cmd.exe",
+        "powershell": "powershell.exe",
+        "file explorer": "explorer.exe",
+    }
+
+    def open(self, app_name: str) -> bool:
+
+        app_name = app_name.lower().strip()
+
+        if app_name not in self.APPS:
+            return False
+
+        subprocess.Popen(self.APPS[app_name])
+
+        return True
 
 
-def open_app(command: str):
-
-    command = command.lower()
-
-    for app_name, executable in APPS.items():
-
-        if app_name in command:
-
-            speaker.speak(f"Opening {app_name}")
-
-            subprocess.Popen(executable)
-
-            return True
-
-    return False
+apps = Apps()
