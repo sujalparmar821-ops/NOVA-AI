@@ -1,30 +1,25 @@
 """
-NOVA Voice Engine
------------------
-Handles all text-to-speech output.
+VOICE/speak.py
+--------------
+Speech engine for NOVA.
 """
 
 import pyttsx3
-from config import VOICE_RATE, VOICE_VOLUME
 
 
 class Speaker:
-    """Text-to-speech engine for NOVA."""
-
     def __init__(self):
         self.engine = pyttsx3.init()
 
-        self.engine.setProperty("rate", VOICE_RATE)
-        self.engine.setProperty("volume", VOICE_VOLUME)
+        self.engine.setProperty("rate", 180)
+        self.engine.setProperty("volume", 1.0)
 
-    def speak(self, text: str) -> None:
-        """Speak the provided text."""
+        voices = self.engine.getProperty("voices")
+        if len(voices) > 1:
+            self.engine.setProperty("voice", voices[1].id)
 
-        if not text.strip():
-            return
-
+    def speak(self, text: str):
         print(f"NOVA: {text}")
-
         self.engine.say(text)
         self.engine.runAndWait()
 

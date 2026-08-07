@@ -1,0 +1,8 @@
+{
+    "assistant_name": "NOVA",
+    "wake_word": "hey nova",
+    "voice_rate": 180,
+    "voice_volume": 1.0,
+    "theme": "dark",
+    "debug": false
+}
