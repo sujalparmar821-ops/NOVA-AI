@@ -5,6 +5,7 @@ Version: 1.0.0
 
 from VOICE.listen import listener
 from VOICE.speak import speaker
+
 from BRAIN.parser import parser
 from BRAIN.state import state_manager
 from BRAIN.wake_word import wake_word
@@ -29,7 +30,12 @@ def main():
             continue
 
         # Exit NOVA completely
-        if text.lower() in ["exit", "quit", "goodbye", "stop nova"]:
+        if text.lower() in [
+            "exit",
+            "quit",
+            "goodbye",
+            "stop nova"
+        ]:
             speaker.speak(response.goodbye())
             break
 
@@ -59,11 +65,22 @@ def main():
             state_manager.sleep()
             continue
 
-        # Execute command
+        # -----------------------------
+        # PARSE COMMAND
+        # -----------------------------
         command = parser.parse(text)
 
-        if dispatcher.dispatch(command):
+        # -----------------------------
+        # EXECUTE COMMAND
+        # -----------------------------
+        result = dispatcher.dispatch(command)
+
+        if isinstance(result, str):
+            speaker.speak(result)
+
+        elif result:
             speaker.speak(response.command_success())
+
         else:
             speaker.speak(response.unknown_command())
 
