@@ -74,6 +74,7 @@ def main():
         # EXECUTE COMMAND
         # -----------------------------
         result = dispatcher.dispatch(command)
+        print(f"DEBUG RESULT: {result}")
 
         if isinstance(result, str):
             speaker.speak(result)
