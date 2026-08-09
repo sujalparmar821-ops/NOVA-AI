@@ -38,9 +38,73 @@ class Parser:
 
         text = " ".join(text.split())
 
-        # --------------------------------
+        # =================================
+        # BRIGHTNESS
+        # =================================
+
+        brightness_words = [
+            "brightness",
+            "bright",
+            "dim",
+            "screen brightness",
+        ]
+
+        if any(word in text for word in brightness_words):
+
+            # -----------------------------
+            # Set brightness
+            # -----------------------------
+
+            match = re.search(
+                r"(?:brightness|bright|screen)\s+(?:to\s+)?(\d+)\s*(?:percent|%)?",
+                text
+            )
+
+            if match:
+
+                percentage = match.group(1)
+
+                return f"brightness set {percentage}"
+
+            # -----------------------------
+            # Increase brightness
+            # -----------------------------
+
+            if any(word in text for word in [
+                "increase",
+                "raise",
+                "higher",
+                "up",
+                "brighter"
+            ]):
+
+                return "brightness increase"
+
+            # -----------------------------
+            # Decrease brightness
+            # -----------------------------
+
+            if any(word in text for word in [
+                "decrease",
+                "lower",
+                "down",
+                "dimmer",
+                "dim"
+            ]):
+
+                return "brightness decrease"
+
+            # -----------------------------
+            # Get brightness
+            # -----------------------------
+
+            if "brightness" in text:
+
+                return "brightness get"
+
+        # =================================
         # VOLUME
-        # --------------------------------
+        # =================================
 
         volume_words = [
             "volume",
@@ -60,7 +124,7 @@ class Parser:
             if "unmute" in text:
                 return "volume unmute"
 
-            # Set volume percentage
+            # Set volume
             match = re.search(
                 r"(?:volume|sound|audio)\s+(?:to\s+)?(\d+)\s*(?:percent|%)?",
                 text
@@ -72,7 +136,7 @@ class Parser:
 
                 return f"volume set {percentage}"
 
-            # Increase volume
+            # Increase
             if any(word in text for word in [
                 "increase",
                 "raise",
@@ -83,7 +147,7 @@ class Parser:
 
                 return "volume increase"
 
-            # Decrease volume
+            # Decrease
             if any(word in text for word in [
                 "decrease",
                 "lower",
@@ -94,14 +158,13 @@ class Parser:
 
                 return "volume decrease"
 
-            # If user simply asks about volume
             if "volume" in text or "sound" in text:
 
                 return "volume get"
 
-        # --------------------------------
+        # =================================
         # WEATHER
-        # --------------------------------
+        # =================================
 
         weather_words = [
             "weather",
@@ -129,12 +192,11 @@ class Parser:
 
             return "weather"
 
-        # --------------------------------
+        # =================================
         # Everything else
-        # --------------------------------
+        # =================================
 
         return " ".join(text.split())
-
 
     # --------------------------------
     # Extract city

@@ -9,7 +9,7 @@ from COMMANDS.web import google_search, youtube_search
 from COMMANDS.time import get_time, get_date
 from COMMANDS.weather import get_weather
 from COMMANDS.volume import volume
-
+from COMMANDS.brightness import brightness
 class Dispatcher:
 
     def dispatch(self, command: str):
@@ -76,6 +76,39 @@ class Dispatcher:
         ]:
 
             return get_date()
+
+                # -----------------------------
+        # Brightness
+        # -----------------------------
+
+        if command == "brightness get":
+
+            current = brightness.get_brightness()
+
+            if current is None:
+                return "I couldn't read the screen brightness."
+
+            return f"Current brightness is {current} percent."
+
+        if command == "brightness increase":
+
+            return brightness.increase()
+
+        if command == "brightness decrease":
+
+            return brightness.decrease()
+
+        if command.startswith("brightness set "):
+
+            percentage = command.replace(
+                "brightness set ",
+                "",
+                1
+            ).strip()
+
+            return brightness.set_brightness(
+                int(percentage)
+            )
 
 
                 # -----------------------------
