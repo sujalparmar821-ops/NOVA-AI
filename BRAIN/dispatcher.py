@@ -1,24 +1,39 @@
 """
 BRAIN/dispatcher.py
 -------------------
-Routes parsed commands to the correct module.
+Routes commands to the correct NOVA module.
 """
 
 from COMMANDS.apps import apps
 from COMMANDS.web import google_search, youtube_search
 from COMMANDS.time import get_time, get_date
 from COMMANDS.weather import get_weather
-from COMMANDS.volume import volume
-from COMMANDS.brightness import brightness
+
+
 class Dispatcher:
 
     def dispatch(self, command: str):
 
         command = command.lower().strip()
 
-        # -----------------------------
-        # Open applications
-        # -----------------------------
+        # =================================
+        # CLOSE APPLICATION
+        # =================================
+
+        if command.startswith("close "):
+
+            app = command.replace(
+                "close ",
+                "",
+                1
+            ).strip()
+
+            return apps.close(app)
+
+        # =================================
+        # OPEN APPLICATION
+        # =================================
+
         if command.startswith("open "):
 
             app = command.replace(
@@ -29,10 +44,13 @@ class Dispatcher:
 
             return apps.open(app)
 
-        # -----------------------------
-        # Google Search
-        # -----------------------------
-        if command.startswith("search google for "):
+        # =================================
+        # GOOGLE SEARCH
+        # =================================
+
+        if command.startswith(
+            "search google for "
+        ):
 
             query = command.replace(
                 "search google for ",
@@ -42,10 +60,13 @@ class Dispatcher:
 
             return google_search(query)
 
-        # -----------------------------
-        # YouTube Search
-        # -----------------------------
-        if command.startswith("search youtube for "):
+        # =================================
+        # YOUTUBE SEARCH
+        # =================================
+
+        if command.startswith(
+            "search youtube for "
+        ):
 
             query = command.replace(
                 "search youtube for ",
@@ -55,9 +76,10 @@ class Dispatcher:
 
             return youtube_search(query)
 
-        # -----------------------------
-        # Time
-        # -----------------------------
+        # =================================
+        # TIME
+        # =================================
+
         if command in [
             "what time is it",
             "what is the time",
@@ -66,9 +88,10 @@ class Dispatcher:
 
             return get_time()
 
-        # -----------------------------
-        # Date
-        # -----------------------------
+        # =================================
+        # DATE
+        # =================================
+
         if command in [
             "what is todays date",
             "what is the date",
@@ -77,105 +100,121 @@ class Dispatcher:
 
             return get_date()
 
-                # -----------------------------
-        # Brightness
-        # -----------------------------
+        # =================================
+        # WEATHER - DEFAULT LOCATION
+        # =================================
 
-        if command == "brightness get":
-
-            current = brightness.get_brightness()
-
-            if current is None:
-                return "I couldn't read the screen brightness."
-
-            return f"Current brightness is {current} percent."
-
-        if command == "brightness increase":
-
-            return brightness.increase()
-
-        if command == "brightness decrease":
-
-            return brightness.decrease()
-
-        if command.startswith("brightness set "):
-
-            percentage = command.replace(
-                "brightness set ",
-                "",
-                1
-            ).strip()
-
-            return brightness.set_brightness(
-                int(percentage)
-            )
-
-
-                # -----------------------------
-        # Volume
-        # -----------------------------
-
-        if command == "volume get":
-
-            return f"Current volume is {volume.get_volume()} percent."
-
-        if command == "volume increase":
-
-            return volume.increase()
-
-        if command == "volume decrease":
-
-            return volume.decrease()
-
-        if command == "volume mute":
-
-            return volume.mute()
-
-        if command == "volume unmute":
-
-            return volume.unmute()
-
-        if command.startswith("volume set "):
-
-            percentage = command.replace(
-                "volume set ",
-                "",
-                1
-            ).strip()
-
-            return volume.set_volume(
-                int(percentage)
-            )
-
-        # -----------------------------
-        # Weather - default location
-        # -----------------------------
-        if command == "weather":
+        if command in [
+            "whats the weather",
+            "what is the weather",
+            "how is the weather",
+            "weather",
+            "temperature",
+            "forecast",
+            "is it raining",
+            "is it sunny",
+            "is it cloudy"
+        ]:
 
             return get_weather()
 
-        # -----------------------------
-        # Weather - specific city
-        # -----------------------------
-        if command.startswith("weather in "):
+        # =================================
+        # WEATHER - SPECIFIC CITY
+        # =================================
 
-            city = command.replace(
-                "weather in ",
-                "",
-                1
-            ).strip()
+        if command.startswith(
+            "weather in "
+        ):
 
-            if city:
+            city = command[
+                len("weather in "):
+            ].strip()
 
-                return get_weather(city)
+            return get_weather(city)
 
-            return get_weather()
+        if command.startswith(
+            "weather at "
+        ):
 
-        # -----------------------------
-        # Unknown command
-        # -----------------------------
+            city = command[
+                len("weather at "):
+            ].strip()
+
+            return get_weather(city)
+
+        if command.startswith(
+            "weather for "
+        ):
+
+            city = command[
+                len("weather for "):
+            ].strip()
+
+            return get_weather(city)
+
+        # =================================
+        # WEATHER - NATURAL SENTENCES
+        # =================================
+
+        if command.startswith(
+            "whats the weather in "
+        ):
+
+            city = command[
+                len("whats the weather in "):
+            ].strip()
+
+            return get_weather(city)
+
+        if command.startswith(
+            "what is the weather in "
+        ):
+
+            city = command[
+                len("what is the weather in "):
+            ].strip()
+
+            return get_weather(city)
+
+        if command.startswith(
+            "how is the weather in "
+        ):
+
+            city = command[
+                len("how is the weather in "):
+            ].strip()
+
+            return get_weather(city)
+
+        # =================================
+        # VOLUME
+        # =================================
+
+        if command.startswith(
+            "volume "
+        ):
+
+            return command
+
+        # =================================
+        # BRIGHTNESS
+        # =================================
+
+        if command.startswith(
+            "brightness "
+        ):
+
+            return command
+
+        # =================================
+        # UNKNOWN COMMAND
+        # =================================
+
         return False
 
 
-# Create dispatcher
+# =====================================
+# Create Dispatcher
+# =====================================
+
 dispatcher = Dispatcher()

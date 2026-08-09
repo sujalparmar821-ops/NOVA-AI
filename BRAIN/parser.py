@@ -13,15 +13,15 @@ class Parser:
 
         text = text.lower().strip()
 
-        # --------------------------------
+        # =================================
         # Remove punctuation
-        # --------------------------------
+        # =================================
 
         text = re.sub(r"[^\w\s]", "", text)
 
-        # --------------------------------
+        # =================================
         # Common filler words
-        # --------------------------------
+        # =================================
 
         fillers = [
             "please",
@@ -39,6 +39,36 @@ class Parser:
         text = " ".join(text.split())
 
         # =================================
+        # CLOSE APPLICATION
+        # =================================
+
+        close_match = re.match(
+            r"^(close|exit|quit|shut down|terminate)\s+(.+)$",
+            text
+        )
+
+        if close_match:
+
+            app_name = close_match.group(2).strip()
+
+            return f"close {app_name}"
+
+        # =================================
+        # OPEN APPLICATION
+        # =================================
+
+        app_match = re.match(
+            r"^(open|launch|start)\s+(.+)$",
+            text
+        )
+
+        if app_match:
+
+            app_name = app_match.group(2).strip()
+
+            return f"open {app_name}"
+
+        # =================================
         # BRIGHTNESS
         # =================================
 
@@ -46,14 +76,11 @@ class Parser:
             "brightness",
             "bright",
             "dim",
-            "screen brightness",
         ]
 
         if any(word in text for word in brightness_words):
 
-            # -----------------------------
             # Set brightness
-            # -----------------------------
 
             match = re.search(
                 r"(?:brightness|bright|screen)\s+(?:to\s+)?(\d+)\s*(?:percent|%)?",
@@ -66,9 +93,7 @@ class Parser:
 
                 return f"brightness set {percentage}"
 
-            # -----------------------------
             # Increase brightness
-            # -----------------------------
 
             if any(word in text for word in [
                 "increase",
@@ -80,9 +105,7 @@ class Parser:
 
                 return "brightness increase"
 
-            # -----------------------------
             # Decrease brightness
-            # -----------------------------
 
             if any(word in text for word in [
                 "decrease",
@@ -94,9 +117,7 @@ class Parser:
 
                 return "brightness decrease"
 
-            # -----------------------------
             # Get brightness
-            # -----------------------------
 
             if "brightness" in text:
 
@@ -114,17 +135,24 @@ class Parser:
             "unmute",
         ]
 
-        if any(word in text.split() for word in volume_words):
+        if any(
+            word in text.split()
+            for word in volume_words
+        ):
 
-            # Mute
-            if "mute" in text and "unmute" not in text:
-                return "volume mute"
-
-            # Unmute
+            # Unmute FIRST
             if "unmute" in text:
+
                 return "volume unmute"
 
+            # Mute
+
+            if "mute" in text:
+
+                return "volume mute"
+
             # Set volume
+
             match = re.search(
                 r"(?:volume|sound|audio)\s+(?:to\s+)?(\d+)\s*(?:percent|%)?",
                 text
@@ -136,7 +164,8 @@ class Parser:
 
                 return f"volume set {percentage}"
 
-            # Increase
+            # Increase volume
+
             if any(word in text for word in [
                 "increase",
                 "raise",
@@ -147,7 +176,8 @@ class Parser:
 
                 return "volume increase"
 
-            # Decrease
+            # Decrease volume
+
             if any(word in text for word in [
                 "decrease",
                 "lower",
@@ -158,7 +188,10 @@ class Parser:
 
                 return "volume decrease"
 
-            if "volume" in text or "sound" in text:
+            if (
+                "volume" in text
+                or "sound" in text
+            ):
 
                 return "volume get"
 
@@ -183,31 +216,39 @@ class Parser:
             "cold",
         ]
 
-        if any(word in text.split() for word in weather_words):
+        if any(
+            word in text.split()
+            for word in weather_words
+        ):
 
             city = self.extract_city(text)
 
             if city:
+
                 return f"weather in {city}"
 
             return "weather"
 
         # =================================
-        # Everything else
+        # Return cleaned command
         # =================================
 
         return " ".join(text.split())
 
-    # --------------------------------
-    # Extract city
-    # --------------------------------
+    # =================================
+    # Extract city from weather command
+    # =================================
 
     def extract_city(self, text: str):
 
         patterns = [
+
             r"\bin\s+([a-zA-Z\s]+)$",
+
             r"\bat\s+([a-zA-Z\s]+)$",
+
             r"\bfor\s+([a-zA-Z\s]+)$",
+
         ]
 
         for pattern in patterns:
@@ -228,6 +269,7 @@ class Parser:
                 ).strip()
 
                 if city:
+
                     return city
 
         return None
