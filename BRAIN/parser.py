@@ -38,6 +38,83 @@ class Parser:
 
         text = " ".join(text.split())
 
+                # =================================
+        # WEB CONTROLS
+        # =================================
+
+        # Google search
+        google_match = re.match(
+            r"^(?:search google for|google search for)\s+(.+)$",
+            text
+        )
+
+        if google_match:
+
+            query = google_match.group(1).strip()
+
+            return f"google search {query}"
+
+        # YouTube search
+        youtube_match = re.match(
+            r"^(?:search youtube for|youtube search for)\s+(.+)$",
+            text
+        )
+
+        if youtube_match:
+
+            query = youtube_match.group(1).strip()
+
+            return f"youtube search {query}"
+
+        # Open Google
+        if text in [
+            "open google",
+            "launch google",
+            "start google",
+        ]:
+
+            return "web open google"
+
+        # Open YouTube
+        if text in [
+            "open youtube",
+            "launch youtube",
+            "start youtube",
+        ]:
+
+            return "web open youtube"
+
+        # Open Gmail
+        if text in [
+            "open gmail",
+            "launch gmail",
+            "start gmail",
+            "open email",
+            "open my email",
+        ]:
+
+            return "web open gmail"
+
+        # Open GitHub
+        if text in [
+            "open github",
+            "launch github",
+            "start github",
+        ]:
+
+            return "web open github"
+
+        # Open ChatGPT
+        if text in [
+            "open chatgpt",
+            "open chat gpt",
+            "launch chatgpt",
+            "launch chat gpt",
+            "start chatgpt",
+        ]:
+
+            return "web open chatgpt"
+
         # =================================
         # SYSTEM CONTROLS
         # =================================

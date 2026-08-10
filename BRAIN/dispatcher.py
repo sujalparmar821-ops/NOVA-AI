@@ -9,12 +9,61 @@ from COMMANDS.web import google_search, youtube_search
 from COMMANDS.time import get_time, get_date
 from COMMANDS.weather import get_weather
 from COMMANDS.system import system
+from COMMANDS.web import (
+    google_search,
+    youtube_search,
+    web
+)
 
 class Dispatcher:
 
     def dispatch(self, command: str):
 
         command = command.lower().strip()
+
+                # =================================
+        # WEB CONTROLS
+        # =================================
+
+        if command.startswith("google search "):
+
+            query = command.replace(
+                "google search ",
+                "",
+                1
+            ).strip()
+
+            return google_search(query)
+
+        if command.startswith("youtube search "):
+
+            query = command.replace(
+                "youtube search ",
+                "",
+                1
+            ).strip()
+
+            return youtube_search(query)
+
+        if command == "web open google":
+
+            return web.open_google()
+
+        if command == "web open youtube":
+
+            return web.open_youtube()
+
+        if command == "web open gmail":
+
+            return web.open_gmail()
+
+        if command == "web open github":
+
+            return web.open_github()
+
+        if command == "web open chatgpt":
+
+            return web.open_chatgpt()
 
                 # =================================
         # SYSTEM CONTROLS
