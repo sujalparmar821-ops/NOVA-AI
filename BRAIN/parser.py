@@ -38,6 +38,58 @@ class Parser:
 
         text = " ".join(text.split())
 
+                # =================================
+        # SYSTEM CONTROLS
+        # =================================
+
+        if text in [
+            "lock my computer",
+            "lock the computer",
+            "lock my pc",
+            "lock the pc",
+            "lock computer",
+            "lock pc",
+        ]:
+
+            return "system lock"
+
+        if text in [
+            "restart my computer",
+            "restart the computer",
+            "restart my pc",
+            "restart the pc",
+            "restart computer",
+            "restart pc",
+        ]:
+
+            return "system restart"
+
+        if text in [
+            "shut down my computer",
+            "shutdown my computer",
+            "shut down the computer",
+            "shutdown the computer",
+            "shut down my pc",
+            "shutdown my pc",
+            "shut down the pc",
+            "shutdown the pc",
+            "shut down computer",
+            "shutdown computer",
+        ]:
+
+            return "system shutdown"
+
+        if text in [
+            "cancel shutdown",
+            "cancel the shutdown",
+            "cancel restart",
+            "cancel the restart",
+            "abort shutdown",
+            "abort restart",
+        ]:
+
+            return "system cancel"
+
         # =================================
         # CLOSE APPLICATION
         # =================================

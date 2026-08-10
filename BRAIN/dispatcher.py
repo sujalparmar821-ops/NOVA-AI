@@ -8,13 +8,33 @@ from COMMANDS.apps import apps
 from COMMANDS.web import google_search, youtube_search
 from COMMANDS.time import get_time, get_date
 from COMMANDS.weather import get_weather
-
+from COMMANDS.system import system
 
 class Dispatcher:
 
     def dispatch(self, command: str):
 
         command = command.lower().strip()
+
+                # =================================
+        # SYSTEM CONTROLS
+        # =================================
+
+        if command == "system lock":
+
+            return system.lock()
+
+        if command == "system restart":
+
+            return system.restart()
+
+        if command == "system shutdown":
+
+            return system.shutdown()
+
+        if command == "system cancel":
+
+            return system.cancel_shutdown()
 
         # =================================
         # CLOSE APPLICATION
