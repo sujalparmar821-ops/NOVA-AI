@@ -4,16 +4,20 @@ BRAIN/dispatcher.py
 Routes commands to the correct NOVA module.
 """
 
+import os
+
 from COMMANDS.apps import apps
-from COMMANDS.web import google_search, youtube_search
+from COMMANDS.web import google_search, youtube_search, web
 from COMMANDS.time import get_time, get_date
 from COMMANDS.weather import get_weather
 from COMMANDS.system import system
-from COMMANDS.web import (
-    google_search,
-    youtube_search,
-    web
-)
+from COMMANDS.media import media
+from COMMANDS.files import files
+from COMMANDS.clipboard import clipboard
+from COMMANDS.screenshot import screenshot
+from COMMANDS.window import window
+from COMMANDS.mouse import mouse
+
 
 class Dispatcher:
 
@@ -21,7 +25,240 @@ class Dispatcher:
 
         command = command.lower().strip()
 
-                # =================================
+        # =================================
+        # FILE TYPE SEARCH
+        # =================================
+
+        if command.startswith("file type search "):
+
+            extension = command.replace(
+                "file type search ",
+                "",
+                1
+            ).strip()
+
+            if not extension:
+
+                return (
+                    "What type of file "
+                    "should I search for?"
+                )
+
+            if not extension.startswith("."):
+
+                extension = "." + extension
+
+            print(
+                f"🔎 Searching for {extension} files..."
+            )
+
+            results = files.search(
+                "",
+                extension=extension
+            )
+
+            if not results:
+
+                print(
+                    "❌ No matching files found."
+                )
+
+                return (
+                    f"I couldn't find any "
+                    f"{extension} files."
+                )
+
+            print(
+                f"✅ Found {len(results)} "
+                f"{extension} file"
+                f"{'s' if len(results) != 1 else ''}."
+            )
+
+            for index, result in enumerate(
+                results[:10],
+                start=1
+            ):
+
+                print(
+                    f"{index}. {result}"
+                )
+
+            return (
+                f"I found {len(results)} "
+                f"{extension} file"
+                f"{'s' if len(results) != 1 else ''}."
+            )
+
+        # =================================
+        # SMART FILE SEARCH
+        # =================================
+
+        if command.startswith("file search "):
+
+            query = command.replace(
+                "file search ",
+                "",
+                1
+            ).strip()
+
+            if not query:
+
+                return (
+                    "What file or folder "
+                    "should I search for?"
+                )
+
+            print(
+                f"🔎 Searching for: {query}"
+            )
+
+            results = files.search(
+                query
+            )
+
+            if not results:
+
+                print(
+                    "❌ No matching files "
+                    "or folders found."
+                )
+
+                return (
+                    f"I couldn't find anything "
+                    f"matching {query}."
+                )
+
+            print(
+                f"✅ Found {len(results)} "
+                f"result"
+                f"{'s' if len(results) != 1 else ''}."
+            )
+
+            for index, result in enumerate(
+                results[:10],
+                start=1
+            ):
+
+                print(
+                    f"{index}. {result}"
+                )
+
+            # ---------------------------------
+            # SMART MATCH
+            # ---------------------------------
+
+            match = files.find_best_match(
+                query,
+                results
+            )
+
+            if not match:
+
+                return (
+                    f"I found some results for "
+                    f"{query}, but I couldn't "
+                    f"select a match."
+                )
+
+            # ---------------------------------
+            # MULTIPLE EQUALLY GOOD RESULTS
+            # ---------------------------------
+
+            if match["status"] == "multiple":
+
+                print(
+                    "⚠️ Multiple equally good matches."
+                )
+
+                return (
+                    f"I found {len(match['matches'])} "
+                    f"equally good matches for "
+                    f"{query}. I won't open one "
+                    f"randomly."
+                )
+
+            # ---------------------------------
+            # ONE CLEAR BEST MATCH
+            # ---------------------------------
+
+            best_path = match["path"]
+
+            print(
+                f"🎯 Best match: {best_path}"
+            )
+
+            opened = files.open_path(
+                best_path
+            )
+
+            if opened:
+
+                name = os.path.basename(
+                    best_path
+                )
+
+                print(
+                    f"📂 Opening: {name}"
+                )
+
+                return (
+                    f"I found it and opened "
+                    f"{name}."
+                )
+
+            return (
+                f"I found the best match at "
+                f"{best_path}, but I couldn't "
+                f"open it."
+            )
+
+        # =================================
+        # CLIPBOARD
+        # =================================
+
+        if command == "clipboard read":
+
+            return clipboard.get_text()
+
+        if command.startswith("clipboard write "):
+
+            content = command.replace(
+                "clipboard write ",
+                "",
+                1
+            ).strip()
+
+            return clipboard.set_text(
+                content
+            )
+
+        if command == "clipboard clear":
+
+            return clipboard.clear()
+
+        if command == "clipboard search":
+
+            query = clipboard.get_raw_text()
+
+            if not query:
+
+                return "Your clipboard is empty."
+
+            print(
+                f"🔎 Searching clipboard: {query}"
+            )
+
+            return google_search(query)
+
+        # =================================
+        # SCREENSHOT
+        # =================================
+
+        if command == "screenshot take":
+
+            return screenshot.take()
+
+        # =================================
         # WEB CONTROLS
         # =================================
 
@@ -65,8 +302,24 @@ class Dispatcher:
 
             return web.open_chatgpt()
 
-                # =================================
-        # SYSTEM CONTROLS
+        # =================================
+        # MEDIA
+        # =================================
+
+        if command == "media play pause":
+
+            return media.play_pause()
+
+        if command == "media next":
+
+            return media.next_track()
+
+        if command == "media previous":
+
+            return media.previous_track()
+
+        # =================================
+        # SYSTEM
         # =================================
 
         if command == "system lock":
@@ -86,6 +339,124 @@ class Dispatcher:
             return system.cancel_shutdown()
 
         # =================================
+        # FOLDER CONTROLS
+        # =================================
+
+        if command.startswith("folder open "):
+
+            folder = command.replace(
+                "folder open ",
+                "",
+                1
+            ).strip()
+
+            return files.open_folder(
+                folder
+            )
+
+        if command.startswith("folder create "):
+
+            folder = command.replace(
+                "folder create ",
+                "",
+                1
+            ).strip()
+
+            return files.create_folder(
+                folder
+            )
+
+        # =================================
+        # MOUSE CONTROLS
+        # =================================  
+
+                # ---------------------------------
+        # MOVE TO SCREEN POSITION
+        # ---------------------------------
+
+        if command.startswith("mouse position "):
+
+            position = command.replace(
+                "mouse position ",
+                "",
+                1
+            ).strip()
+
+            return mouse.move_position(
+                position
+            )
+
+        # ---------------------------------
+        # MOVE MOUSE
+        # ---------------------------------  
+
+
+
+        if command.startswith("mouse move "):
+
+            coordinates = command.replace(
+                "mouse move ",
+                "",
+                1
+            ).strip()
+
+            parts = coordinates.split()
+
+            if len(parts) != 2:
+
+                return (
+                    "Please provide "
+                    "an X and Y coordinate."
+                )
+
+            x, y = parts
+
+            return mouse.move(
+                x,
+                y
+            )
+
+        # ---------------------------------
+        # LEFT CLICK
+        # ---------------------------------
+
+        if command == "mouse click":
+
+            return mouse.click()
+
+        # ---------------------------------
+        # DOUBLE CLICK
+        # ---------------------------------
+
+        if command == "mouse double click":
+
+            return mouse.double_click()
+
+        # ---------------------------------
+        # RIGHT CLICK
+        # ---------------------------------
+
+        if command == "mouse right click":
+
+            return mouse.right_click()
+
+        # ---------------------------------
+        # SCROLL UP
+        # ---------------------------------
+
+        if command == "mouse scroll up":
+
+            return mouse.scroll_up()
+
+        # ---------------------------------
+        # SCROLL DOWN
+        # ---------------------------------
+
+        if command == "mouse scroll down":
+
+            return mouse.scroll_down()
+
+        # =================================
         # CLOSE APPLICATION
         # =================================
 
@@ -97,7 +468,9 @@ class Dispatcher:
                 1
             ).strip()
 
-            return apps.close(app)
+            return apps.close(
+                app
+            )
 
         # =================================
         # OPEN APPLICATION
@@ -111,7 +484,9 @@ class Dispatcher:
                 1
             ).strip()
 
-            return apps.open(app)
+            return apps.open(
+                app
+            )
 
         # =================================
         # GOOGLE SEARCH
@@ -152,7 +527,8 @@ class Dispatcher:
         if command in [
             "what time is it",
             "what is the time",
-            "tell me the time"
+            "tell me the time",
+            "whats the time"
         ]:
 
             return get_time()
@@ -164,13 +540,15 @@ class Dispatcher:
         if command in [
             "what is todays date",
             "what is the date",
-            "tell me the date"
+            "tell me the date",
+            "whats the date",
+            "whats todays date"
         ]:
 
             return get_date()
 
         # =================================
-        # WEATHER - DEFAULT LOCATION
+        # WEATHER
         # =================================
 
         if command in [
@@ -188,12 +566,10 @@ class Dispatcher:
             return get_weather()
 
         # =================================
-        # WEATHER - SPECIFIC CITY
+        # WEATHER — CITY
         # =================================
 
-        if command.startswith(
-            "weather in "
-        ):
+        if command.startswith("weather in "):
 
             city = command[
                 len("weather in "):
@@ -201,9 +577,7 @@ class Dispatcher:
 
             return get_weather(city)
 
-        if command.startswith(
-            "weather at "
-        ):
+        if command.startswith("weather at "):
 
             city = command[
                 len("weather at "):
@@ -211,19 +585,13 @@ class Dispatcher:
 
             return get_weather(city)
 
-        if command.startswith(
-            "weather for "
-        ):
+        if command.startswith("weather for "):
 
             city = command[
                 len("weather for "):
             ].strip()
 
             return get_weather(city)
-
-        # =================================
-        # WEATHER - NATURAL SENTENCES
-        # =================================
 
         if command.startswith(
             "whats the weather in "
@@ -259,9 +627,7 @@ class Dispatcher:
         # VOLUME
         # =================================
 
-        if command.startswith(
-            "volume "
-        ):
+        if command.startswith("volume "):
 
             return command
 
@@ -269,11 +635,29 @@ class Dispatcher:
         # BRIGHTNESS
         # =================================
 
-        if command.startswith(
-            "brightness "
-        ):
+        if command.startswith("brightness "):
 
             return command
+
+        # =================================
+        # WINDOW CONTROLS
+        # =================================
+
+        if command == "window minimize":
+
+            return window.minimize()
+
+        if command == "window maximize":
+
+            return window.maximize()
+
+        if command == "window close":
+
+            return window.close()
+
+        if command == "window show desktop":
+
+            return window.show_desktop()
 
         # =================================
         # UNKNOWN COMMAND
@@ -283,7 +667,7 @@ class Dispatcher:
 
 
 # =====================================
-# Create Dispatcher
+# CREATE DISPATCHER
 # =====================================
 
 dispatcher = Dispatcher()

@@ -1,6 +1,6 @@
 """
 NOVA Main Application
-Version: 1.0.0
+Version: 1.2.1
 """
 
 from VOICE.listen import listener
@@ -11,6 +11,7 @@ from BRAIN.state import state_manager
 from BRAIN.wake_word import wake_word
 from BRAIN.dispatcher import dispatcher
 from BRAIN.response import response
+from BRAIN.conversation import conversation
 
 
 def main():
@@ -19,72 +20,145 @@ def main():
 
     while True:
 
-        # Go back to sleep after inactivity
+        # =================================
+        # SLEEP TIMEOUT
+        # =================================
+
         if state_manager.timed_out():
-            speaker.speak(response.sleeping())
+
+            speaker.speak(
+                response.sleeping()
+            )
+
             state_manager.sleep()
+
+        # =================================
+        # LISTEN
+        # =================================
 
         text = listener.listen()
 
         if not text:
             continue
 
-        # Exit NOVA completely
-        if text.lower() in [
+        text = text.lower().strip()
+
+        print(
+            f"DEBUG HEARD: {text}"
+        )
+
+        # =================================
+        # EXIT
+        # =================================
+
+        if text in [
             "exit",
             "quit",
             "goodbye",
             "stop nova"
         ]:
-            speaker.speak(response.goodbye())
+
+            speaker.speak(
+                response.goodbye()
+            )
+
             break
 
-        # -----------------------------
+        # =================================
         # SLEEP MODE
-        # -----------------------------
+        # =================================
+
         if not state_manager.is_awake():
 
             if wake_word.detected(text):
+
                 state_manager.wake()
-                speaker.speak(response.greeting())
+
+                speaker.speak(
+                    response.greeting()
+                )
 
             continue
 
-        # -----------------------------
-        # ACTIVE MODE
-        # -----------------------------
+        # =================================
+        # ACTIVE
+        # =================================
+
         state_manager.update()
 
-        # User wants NOVA to sleep
-        if text.lower() in [
+        # =================================
+        # SLEEP COMMAND
+        # =================================
+
+        if text in [
             "go to sleep",
             "sleep",
             "stop listening"
         ]:
-            speaker.speak(response.sleeping())
+
+            speaker.speak(
+                response.sleeping()
+            )
+
             state_manager.sleep()
+
             continue
 
-        # -----------------------------
-        # PARSE COMMAND
-        # -----------------------------
+        # =================================
+        # PARSE FIRST
+        # =================================
+
         command = parser.parse(text)
 
-        # -----------------------------
-        # EXECUTE COMMAND
-        # -----------------------------
+        print(
+            f"DEBUG COMMAND: {command}"
+        )
+
+        # =================================
+        # TRY COMMAND
+        # =================================
+
         result = dispatcher.dispatch(command)
-        print(f"DEBUG RESULT: {result}")
 
-        if isinstance(result, str):
-            speaker.speak(result)
+        print(
+            f"DEBUG RESULT: {result}"
+        )
 
-        elif result:
-            speaker.speak(response.command_success())
+        # =================================
+        # COMMAND SUCCESS
+        # =================================
 
-        else:
-            speaker.speak(response.unknown_command())
+        if result is not False:
 
+            if isinstance(result, str):
+
+                speaker.speak(result)
+
+            else:
+
+                speaker.speak(
+                    response.command_success()
+                )
+
+            continue
+
+        # =================================
+        # NOT A COMMAND
+        # =================================
+
+        result = conversation.respond(text)
+
+        print(
+            f"DEBUG CONVERSATION: {result}"
+        )
+
+        speaker.speak(result)
+
+
+# =====================================
+# START NOVA
+# =====================================
 
 if __name__ == "__main__":
+
     main()
