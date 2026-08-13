@@ -11,98 +11,250 @@ class VolumeController:
 
     def __init__(self):
 
-        devices = AudioUtilities.GetSpeakers()
+        try:
 
-        # Newer pycaw versions expose EndpointVolume directly
-        self.volume = devices.EndpointVolume
+            devices = AudioUtilities.GetSpeakers()
 
-    # --------------------------------
-    # Get current volume
-    # --------------------------------
+            self.volume = devices.EndpointVolume
+
+        except Exception as e:
+
+            print(
+                "Volume Initialization Error:",
+                e
+            )
+
+            self.volume = None
+
+    # =================================
+    # GET CURRENT VOLUME
+    # =================================
 
     def get_volume(self):
 
-        level = self.volume.GetMasterVolumeLevelScalar()
+        try:
 
-        return round(level * 100)
+            if self.volume is None:
+                return None
 
-    # --------------------------------
-    # Set volume
-    # --------------------------------
+            level = (
+                self.volume
+                .GetMasterVolumeLevelScalar()
+            )
+
+            return round(level * 100)
+
+        except Exception as e:
+
+            print(
+                "Volume Read Error:",
+                e
+            )
+
+            return None
+
+    # =================================
+    # SET VOLUME
+    # =================================
 
     def set_volume(self, percentage):
 
-        percentage = max(
-            0,
-            min(100, int(percentage))
-        )
+        try:
 
-        self.volume.SetMasterVolumeLevelScalar(
-            percentage / 100,
-            None
-        )
+            percentage = int(
+                percentage
+            )
 
-        return f"Volume set to {percentage} percent."
+            percentage = max(
+                0,
+                min(100, percentage)
+            )
 
-    # --------------------------------
-    # Increase volume
-    # --------------------------------
+            if self.volume is None:
+
+                return (
+                    "I couldn't access "
+                    "Windows volume controls."
+                )
+
+            self.volume.SetMasterVolumeLevelScalar(
+                percentage / 100,
+                None
+            )
+
+            print(
+                f"Volume set to "
+                f"{percentage}%."
+            )
+
+            return (
+                f"Volume set to "
+                f"{percentage} percent."
+            )
+
+        except Exception as e:
+
+            print(
+                "Volume Set Error:",
+                e
+            )
+
+            return (
+                "Sorry, I couldn't "
+                "change the volume."
+            )
+
+    # =================================
+    # INCREASE VOLUME
+    # =================================
 
     def increase(self, amount=10):
 
-        current = self.get_volume()
+        try:
 
-        new_volume = min(
-            100,
-            current + amount
-        )
+            current = self.get_volume()
 
-        self.volume.SetMasterVolumeLevelScalar(
-            new_volume / 100,
-            None
-        )
+            if current is None:
 
-        return f"Volume increased to {new_volume} percent."
+                return (
+                    "I couldn't read "
+                    "the current volume."
+                )
 
-    # --------------------------------
-    # Decrease volume
-    # --------------------------------
+            new_volume = min(
+                100,
+                current + amount
+            )
+
+            return self.set_volume(
+                new_volume
+            )
+
+        except Exception as e:
+
+            print(
+                "Volume Increase Error:",
+                e
+            )
+
+            return (
+                "Sorry, I couldn't "
+                "increase the volume."
+            )
+
+    # =================================
+    # DECREASE VOLUME
+    # =================================
 
     def decrease(self, amount=10):
 
-        current = self.get_volume()
+        try:
 
-        new_volume = max(
-            0,
-            current - amount
-        )
+            current = self.get_volume()
 
-        self.volume.SetMasterVolumeLevelScalar(
-            new_volume / 100,
-            None
-        )
+            if current is None:
 
-        return f"Volume decreased to {new_volume} percent."
+                return (
+                    "I couldn't read "
+                    "the current volume."
+                )
 
-    # --------------------------------
-    # Mute
-    # --------------------------------
+            new_volume = max(
+                0,
+                current - amount
+            )
+
+            return self.set_volume(
+                new_volume
+            )
+
+        except Exception as e:
+
+            print(
+                "Volume Decrease Error:",
+                e
+            )
+
+            return (
+                "Sorry, I couldn't "
+                "decrease the volume."
+            )
+
+    # =================================
+    # MUTE
+    # =================================
 
     def mute(self):
 
-        self.volume.SetMute(1, None)
+        try:
 
-        return "Volume muted."
+            if self.volume is None:
 
-    # --------------------------------
-    # Unmute
-    # --------------------------------
+                return (
+                    "I couldn't access "
+                    "Windows volume controls."
+                )
+
+            self.volume.SetMute(
+                1,
+                None
+            )
+
+            print("Volume muted.")
+
+            return "Volume muted."
+
+        except Exception as e:
+
+            print(
+                "Volume Mute Error:",
+                e
+            )
+
+            return (
+                "Sorry, I couldn't "
+                "mute the volume."
+            )
+
+    # =================================
+    # UNMUTE
+    # =================================
 
     def unmute(self):
 
-        self.volume.SetMute(0, None)
+        try:
 
-        return "Volume unmuted."
+            if self.volume is None:
 
+                return (
+                    "I couldn't access "
+                    "Windows volume controls."
+                )
+
+            self.volume.SetMute(
+                0,
+                None
+            )
+
+            print("Volume unmuted.")
+
+            return "Volume unmuted."
+
+        except Exception as e:
+
+            print(
+                "Volume Unmute Error:",
+                e
+            )
+
+            return (
+                "Sorry, I couldn't "
+                "unmute the volume."
+            )
+
+
+# =====================================
+# CREATE VOLUME CONTROLLER
+# =====================================
 
 volume = VolumeController()

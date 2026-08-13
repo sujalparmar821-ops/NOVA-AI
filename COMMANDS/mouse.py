@@ -180,6 +180,96 @@ class Mouse:
             )
 
     # =================================
+    # RELATIVE MOUSE MOVEMENT
+    # =================================
+
+    def move_relative(self, direction, amount=100):
+
+        try:
+
+            direction = (
+                direction
+                .lower()
+                .strip()
+            )
+
+            amount = int(amount)
+
+            current_x, current_y = (
+                pyautogui.position()
+            )
+
+            if direction == "left":
+
+                new_x = current_x - amount
+                new_y = current_y
+
+            elif direction == "right":
+
+                new_x = current_x + amount
+                new_y = current_y
+
+            elif direction == "up":
+
+                new_x = current_x
+                new_y = current_y - amount
+
+            elif direction == "down":
+
+                new_x = current_x
+                new_y = current_y + amount
+
+            else:
+
+                return (
+                    f"I don't recognize "
+                    f"the direction {direction}."
+                )
+
+            screen_width, screen_height = (
+                pyautogui.size()
+            )
+
+            new_x = max(
+                0,
+                min(
+                    new_x,
+                    screen_width - 1
+                )
+            )
+
+            new_y = max(
+                0,
+                min(
+                    new_y,
+                    screen_height - 1
+                )
+            )
+
+            pyautogui.moveTo(
+                new_x,
+                new_y,
+                duration=0.2
+            )
+
+            return (
+                f"Moved the mouse "
+                f"{direction} {amount} pixels."
+            )
+
+        except Exception as e:
+
+            print(
+                "Mouse Relative Move Error:",
+                e
+            )
+
+            return (
+                "Sorry, I couldn't "
+                "move the mouse."
+            )
+
+    # =================================
     # LEFT CLICK
     # =================================
 

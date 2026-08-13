@@ -18,12 +18,55 @@ from COMMANDS.screenshot import screenshot
 from COMMANDS.window import window
 from COMMANDS.mouse import mouse
 from COMMANDS.keyboard import keyboard
+from COMMANDS.volume import volume
+from COMMANDS.brightness import brightness
+
 
 class Dispatcher:
 
     def dispatch(self, command: str):
 
+        if not command:
+            return False
+
         command = command.lower().strip()
+
+        # =================================
+        # WINDOW CONTROLS
+        # =================================
+
+        if command == "window minimize":
+            return window.minimize()
+
+        if command == "window maximize":
+            return window.maximize()
+
+        if command == "window close":
+            return window.close()
+
+        if command == "window show desktop":
+            return window.show_desktop()
+
+        if command.startswith("window focus "):
+
+            app_name = command.replace(
+                "window focus ",
+                "",
+                1
+            ).strip()
+
+            if not app_name:
+                return (
+                    "Please tell me which "
+                    "application to focus."
+                )
+
+            return window.focus_app(
+                app_name
+            )
+
+        if command == "window switch next":
+            return window.switch_next()
 
         # =================================
         # FILE TYPE SEARCH
@@ -38,18 +81,17 @@ class Dispatcher:
             ).strip()
 
             if not extension:
-
                 return (
                     "What type of file "
                     "should I search for?"
                 )
 
             if not extension.startswith("."):
-
                 extension = "." + extension
 
             print(
-                f"🔎 Searching for {extension} files..."
+                f"🔎 Searching for "
+                f"{extension} files..."
             )
 
             results = files.search(
@@ -102,7 +144,6 @@ class Dispatcher:
             ).strip()
 
             if not query:
-
                 return (
                     "What file or folder "
                     "should I search for?"
@@ -143,43 +184,27 @@ class Dispatcher:
                     f"{index}. {result}"
                 )
 
-            # ---------------------------------
-            # SMART MATCH
-            # ---------------------------------
-
             match = files.find_best_match(
                 query,
                 results
             )
 
             if not match:
-
                 return (
                     f"I found some results for "
                     f"{query}, but I couldn't "
                     f"select a match."
                 )
 
-            # ---------------------------------
-            # MULTIPLE EQUALLY GOOD RESULTS
-            # ---------------------------------
-
             if match["status"] == "multiple":
 
-                print(
-                    "⚠️ Multiple equally good matches."
-                )
-
                 return (
-                    f"I found {len(match['matches'])} "
+                    f"I found "
+                    f"{len(match['matches'])} "
                     f"equally good matches for "
                     f"{query}. I won't open one "
                     f"randomly."
                 )
-
-            # ---------------------------------
-            # ONE CLEAR BEST MATCH
-            # ---------------------------------
 
             best_path = match["path"]
 
@@ -195,10 +220,6 @@ class Dispatcher:
 
                 name = os.path.basename(
                     best_path
-                )
-
-                print(
-                    f"📂 Opening: {name}"
                 )
 
                 return (
@@ -217,7 +238,6 @@ class Dispatcher:
         # =================================
 
         if command == "clipboard read":
-
             return clipboard.get_text()
 
         if command.startswith("clipboard write "):
@@ -228,12 +248,14 @@ class Dispatcher:
                 1
             ).strip()
 
+            if not content:
+                return "There is nothing to copy."
+
             return clipboard.set_text(
                 content
             )
 
         if command == "clipboard clear":
-
             return clipboard.clear()
 
         if command == "clipboard search":
@@ -241,7 +263,6 @@ class Dispatcher:
             query = clipboard.get_raw_text()
 
             if not query:
-
                 return "Your clipboard is empty."
 
             print(
@@ -255,11 +276,10 @@ class Dispatcher:
         # =================================
 
         if command == "screenshot take":
-
             return screenshot.take()
 
         # =================================
-        # WEB CONTROLS
+        # WEB
         # =================================
 
         if command.startswith("google search "):
@@ -269,6 +289,9 @@ class Dispatcher:
                 "",
                 1
             ).strip()
+
+            if not query:
+                return "What should I search for?"
 
             return google_search(query)
 
@@ -280,26 +303,24 @@ class Dispatcher:
                 1
             ).strip()
 
+            if not query:
+                return "What should I search for?"
+
             return youtube_search(query)
 
         if command == "web open google":
-
             return web.open_google()
 
         if command == "web open youtube":
-
             return web.open_youtube()
 
         if command == "web open gmail":
-
             return web.open_gmail()
 
         if command == "web open github":
-
             return web.open_github()
 
         if command == "web open chatgpt":
-
             return web.open_chatgpt()
 
         # =================================
@@ -307,15 +328,12 @@ class Dispatcher:
         # =================================
 
         if command == "media play pause":
-
             return media.play_pause()
 
         if command == "media next":
-
             return media.next_track()
 
         if command == "media previous":
-
             return media.previous_track()
 
         # =================================
@@ -323,23 +341,19 @@ class Dispatcher:
         # =================================
 
         if command == "system lock":
-
             return system.lock()
 
         if command == "system restart":
-
             return system.restart()
 
         if command == "system shutdown":
-
             return system.shutdown()
 
         if command == "system cancel":
-
             return system.cancel_shutdown()
 
         # =================================
-        # FOLDER CONTROLS
+        # FOLDERS
         # =================================
 
         if command.startswith("folder open "):
@@ -367,12 +381,8 @@ class Dispatcher:
             )
 
         # =================================
-        # MOUSE CONTROLS
-        # =================================  
-
-                # ---------------------------------
-        # MOVE TO SCREEN POSITION
-        # ---------------------------------
+        # MOUSE
+        # =================================
 
         if command.startswith("mouse position "):
 
@@ -385,12 +395,6 @@ class Dispatcher:
             return mouse.move_position(
                 position
             )
-
-        # ---------------------------------
-        # MOVE MOUSE
-        # ---------------------------------  
-
-
 
         if command.startswith("mouse move "):
 
@@ -416,53 +420,24 @@ class Dispatcher:
                 y
             )
 
-        # ---------------------------------
-        # LEFT CLICK
-        # ---------------------------------
-
         if command == "mouse click":
-
             return mouse.click()
 
-        # ---------------------------------
-        # DOUBLE CLICK
-        # ---------------------------------
-
         if command == "mouse double click":
-
             return mouse.double_click()
 
-        # ---------------------------------
-        # RIGHT CLICK
-        # ---------------------------------
-
         if command == "mouse right click":
-
             return mouse.right_click()
 
-        # ---------------------------------
-        # SCROLL UP
-        # ---------------------------------
-
         if command == "mouse scroll up":
-
             return mouse.scroll_up()
 
-        # ---------------------------------
-        # SCROLL DOWN
-        # ---------------------------------
-
         if command == "mouse scroll down":
-
             return mouse.scroll_down()
 
-                # =================================
-        # KEYBOARD CONTROLS
         # =================================
-
-        # ---------------------------------
-        # PRESS KEY
-        # ---------------------------------
+        # KEYBOARD
+        # =================================
 
         if command.startswith("keyboard press "):
 
@@ -473,19 +448,12 @@ class Dispatcher:
             ).strip()
 
             if not key:
-
                 return (
                     "Please tell me which "
                     "key to press."
                 )
 
-            return keyboard.press(
-                key
-            )
-
-        # ---------------------------------
-        # KEY COMBINATION
-        # ---------------------------------
+            return keyboard.press(key)
 
         if command.startswith("keyboard hotkey "):
 
@@ -496,21 +464,14 @@ class Dispatcher:
             ).strip()
 
             if not keys:
-
                 return (
                     "Please tell me which "
                     "keys to press."
                 )
 
-            key_list = keys.split()
-
             return keyboard.hotkey(
-                *key_list
+                *keys.split()
             )
-
-        # ---------------------------------
-        # TYPE TEXT
-        # ---------------------------------
 
         if command.startswith("keyboard type "):
 
@@ -521,7 +482,6 @@ class Dispatcher:
             ).strip()
 
             if not content:
-
                 return (
                     "Please tell me what "
                     "you want me to type."
@@ -532,7 +492,7 @@ class Dispatcher:
             )
 
         # =================================
-        # CLOSE APPLICATION
+        # APPLICATIONS
         # =================================
 
         if command.startswith("close "):
@@ -543,13 +503,10 @@ class Dispatcher:
                 1
             ).strip()
 
-            return apps.close(
-                app
-            )
+            if not app:
+                return "Which application should I close?"
 
-        # =================================
-        # OPEN APPLICATION
-        # =================================
+            return apps.close(app)
 
         if command.startswith("open "):
 
@@ -559,41 +516,10 @@ class Dispatcher:
                 1
             ).strip()
 
-            return apps.open(
-                app
-            )
+            if not app:
+                return "Which application should I open?"
 
-        # =================================
-        # GOOGLE SEARCH
-        # =================================
-
-        if command.startswith(
-            "search google for "
-        ):
-
-            query = command.replace(
-                "search google for ",
-                "",
-                1
-            ).strip()
-
-            return google_search(query)
-
-        # =================================
-        # YOUTUBE SEARCH
-        # =================================
-
-        if command.startswith(
-            "search youtube for "
-        ):
-
-            query = command.replace(
-                "search youtube for ",
-                "",
-                1
-            ).strip()
-
-            return youtube_search(query)
+            return apps.open(app)
 
         # =================================
         # TIME
@@ -603,7 +529,7 @@ class Dispatcher:
             "what time is it",
             "what is the time",
             "tell me the time",
-            "whats the time"
+            "whats the time",
         ]:
 
             return get_time()
@@ -617,7 +543,7 @@ class Dispatcher:
             "what is the date",
             "tell me the date",
             "whats the date",
-            "whats todays date"
+            "whats todays date",
         ]:
 
             return get_date()
@@ -627,28 +553,27 @@ class Dispatcher:
         # =================================
 
         if command in [
+            "weather",
             "whats the weather",
             "what is the weather",
             "how is the weather",
-            "weather",
             "temperature",
             "forecast",
             "is it raining",
             "is it sunny",
-            "is it cloudy"
+            "is it cloudy",
         ]:
 
             return get_weather()
-
-        # =================================
-        # WEATHER — CITY
-        # =================================
 
         if command.startswith("weather in "):
 
             city = command[
                 len("weather in "):
             ].strip()
+
+            if not city:
+                return get_weather()
 
             return get_weather(city)
 
@@ -658,6 +583,9 @@ class Dispatcher:
                 len("weather at "):
             ].strip()
 
+            if not city:
+                return get_weather()
+
             return get_weather(city)
 
         if command.startswith("weather for "):
@@ -666,35 +594,8 @@ class Dispatcher:
                 len("weather for "):
             ].strip()
 
-            return get_weather(city)
-
-        if command.startswith(
-            "whats the weather in "
-        ):
-
-            city = command[
-                len("whats the weather in "):
-            ].strip()
-
-            return get_weather(city)
-
-        if command.startswith(
-            "what is the weather in "
-        ):
-
-            city = command[
-                len("what is the weather in "):
-            ].strip()
-
-            return get_weather(city)
-
-        if command.startswith(
-            "how is the weather in "
-        ):
-
-            city = command[
-                len("how is the weather in "):
-            ].strip()
+            if not city:
+                return get_weather()
 
             return get_weather(city)
 
@@ -702,40 +603,113 @@ class Dispatcher:
         # VOLUME
         # =================================
 
-        if command.startswith("volume "):
+        if command == "volume get":
 
-            return command
+            current = volume.get_volume()
+
+            if current is None:
+                return "I couldn't read the current volume."
+
+            return (
+                f"Your volume is currently "
+                f"{current} percent."
+            )
+
+        if command.startswith("volume set "):
+
+            percentage = command.replace(
+                "volume set ",
+                "",
+                1
+            ).strip()
+
+            if not percentage.isdigit():
+
+                return (
+                    "Please give me a volume "
+                    "percentage between 0 and 100."
+                )
+
+            percentage = int(percentage)
+
+            if percentage < 0 or percentage > 100:
+
+                return (
+                    "Please choose a volume "
+                    "between 0 and 100 percent."
+                )
+
+            return volume.set_volume(
+                percentage
+            )
+
+        if command == "volume increase":
+            return volume.increase()
+
+        if command == "volume decrease":
+            return volume.decrease()
+
+        if command == "volume mute":
+            return volume.mute()
+
+        if command == "volume unmute":
+            return volume.unmute()
 
         # =================================
         # BRIGHTNESS
         # =================================
 
-        if command.startswith("brightness "):
+        if command == "brightness get":
 
-            return command
+            current = brightness.get_brightness()
+
+            if current is None:
+                return (
+                    "I couldn't read the "
+                    "current brightness."
+                )
+
+            return (
+                f"Your brightness is currently "
+                f"{current} percent."
+            )
+
+        if command.startswith("brightness set "):
+
+            percentage = command.replace(
+                "brightness set ",
+                "",
+                1
+            ).strip()
+
+            if not percentage.isdigit():
+
+                return (
+                    "Please give me a brightness "
+                    "percentage between 0 and 100."
+                )
+
+            percentage = int(percentage)
+
+            if percentage < 0 or percentage > 100:
+
+                return (
+                    "Please choose a brightness "
+                    "between 0 and 100 percent."
+                )
+
+            return brightness.set_brightness(
+                percentage
+            )
+
+        if command == "brightness increase":
+            return brightness.increase()
+
+        if command == "brightness decrease":
+            return brightness.decrease()
 
         # =================================
-        # WINDOW CONTROLS
-        # =================================
-
-        if command == "window minimize":
-
-            return window.minimize()
-
-        if command == "window maximize":
-
-            return window.maximize()
-
-        if command == "window close":
-
-            return window.close()
-
-        if command == "window show desktop":
-
-            return window.show_desktop()
-
-        # =================================
-        # UNKNOWN COMMAND
+        # UNKNOWN
         # =================================
 
         return False

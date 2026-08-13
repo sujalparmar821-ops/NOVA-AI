@@ -1,6 +1,6 @@
 """
 NOVA Main Application
-Version: 1.2.1
+Version: 1.2.2
 """
 
 from VOICE.listen import listener
@@ -16,7 +16,9 @@ from BRAIN.conversation import conversation
 
 def main():
 
-    speaker.speak("NOVA is now online.")
+    speaker.speak(
+        "NOVA is now online."
+    )
 
     while True:
 
@@ -55,7 +57,7 @@ def main():
             "exit",
             "quit",
             "goodbye",
-            "stop nova"
+            "stop nova",
         ]:
 
             speaker.speak(
@@ -81,7 +83,7 @@ def main():
             continue
 
         # =================================
-        # ACTIVE
+        # UPDATE STATE
         # =================================
 
         state_manager.update()
@@ -93,7 +95,8 @@ def main():
         if text in [
             "go to sleep",
             "sleep",
-            "stop listening"
+            "stop listening",
+            "go back to sleep",
         ]:
 
             speaker.speak(
@@ -105,34 +108,43 @@ def main():
             continue
 
         # =================================
-        # PARSE FIRST
+        # PARSE
         # =================================
 
-        command = parser.parse(text)
+        command = parser.parse(
+            text
+        )
 
         print(
             f"DEBUG COMMAND: {command}"
         )
 
         # =================================
-        # TRY COMMAND
+        # DISPATCH
         # =================================
 
-        result = dispatcher.dispatch(command)
+        result = dispatcher.dispatch(
+            command
+        )
 
         print(
             f"DEBUG RESULT: {result}"
         )
 
         # =================================
-        # COMMAND SUCCESS
+        # COMMAND HANDLED
         # =================================
 
         if result is not False:
 
-            if isinstance(result, str):
+            if isinstance(
+                result,
+                str
+            ):
 
-                speaker.speak(result)
+                speaker.speak(
+                    result
+                )
 
             else:
 
@@ -143,16 +155,20 @@ def main():
             continue
 
         # =================================
-        # NOT A COMMAND
+        # CONVERSATION
         # =================================
 
-        result = conversation.respond(text)
+        result = conversation.respond(
+            text
+        )
 
         print(
             f"DEBUG CONVERSATION: {result}"
         )
 
-        speaker.speak(result)
+        speaker.speak(
+            result
+        )
 
 
 # =====================================

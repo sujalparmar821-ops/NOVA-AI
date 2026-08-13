@@ -24,12 +24,13 @@ class Apps:
         )
 
     # =================================
-    # Scan applications
+    # SCAN APPLICATIONS
     # =================================
 
     def scan_applications(self):
 
         locations = [
+
             os.path.expandvars(
                 r"%APPDATA%\Microsoft\Windows\Start Menu\Programs"
             ),
@@ -67,6 +68,7 @@ class Apps:
                         name = file.stem.lower().strip()
 
                         if name:
+
                             self.applications[name] = str(file)
 
             except Exception as e:
@@ -76,7 +78,7 @@ class Apps:
                 )
 
     # =================================
-    # Find application
+    # FIND APPLICATION
     # =================================
 
     def find(self, app_name: str):
@@ -98,7 +100,7 @@ class Apps:
         return None
 
     # =================================
-    # Open application
+    # OPEN APPLICATION
     # =================================
 
     def open(self, app_name: str):
@@ -108,7 +110,7 @@ class Apps:
         path = self.find(app_name)
 
         # --------------------------------
-        # Found application
+        # FOUND APPLICATION
         # --------------------------------
 
         if path:
@@ -139,7 +141,7 @@ class Apps:
                 )
 
         # --------------------------------
-        # Windows executable aliases
+        # WINDOWS EXECUTABLE ALIASES
         # --------------------------------
 
         try:
@@ -156,11 +158,18 @@ class Apps:
 
             if result.returncode == 0:
 
-                lines = result.stdout.strip().splitlines()
+                lines = (
+                    result.stdout
+                    .strip()
+                    .splitlines()
+                )
 
                 if lines:
 
-                    executable = lines[0].strip()
+                    executable = (
+                        lines[0]
+                        .strip()
+                    )
 
                     subprocess.Popen(
                         [executable],
@@ -181,7 +190,95 @@ class Apps:
         )
 
     # =================================
-    # Close application
+    # CHECK RUNNING APPLICATION
+    # =================================
+
+    def is_running(self, app_name: str):
+
+        app_name = app_name.lower().strip()
+
+        # --------------------------------
+        # PROCESS ALIASES
+        # --------------------------------
+
+        process_aliases = {
+
+            "chrome": "chrome.exe",
+            "google chrome": "chrome.exe",
+
+            "spotify": "Spotify.exe",
+
+            "notepad": "notepad.exe",
+
+            "calculator": "CalculatorApp.exe",
+            "calc": "CalculatorApp.exe",
+
+            "paint": "mspaint.exe",
+
+            "cmd": "cmd.exe",
+            "command prompt": "cmd.exe",
+
+            "powershell": "powershell.exe",
+
+            "file explorer": "explorer.exe",
+            "explorer": "explorer.exe",
+
+            "task manager": "Taskmgr.exe",
+        }
+
+        process_name = process_aliases.get(
+            app_name
+        )
+
+        # --------------------------------
+        # UNKNOWN APPLICATION
+        # --------------------------------
+
+        if not process_name:
+
+            process_name = app_name
+
+            if not process_name.endswith(
+                ".exe"
+            ):
+
+                process_name += ".exe"
+
+        # --------------------------------
+        # CHECK PROCESS
+        # --------------------------------
+
+        try:
+
+            result = subprocess.run(
+                [
+                    "tasklist",
+                    "/FI",
+                    f"IMAGENAME eq {process_name}"
+                ],
+                capture_output=True,
+                text=True
+            )
+
+            if (
+                process_name.lower()
+                in result.stdout.lower()
+            ):
+
+                return True
+
+            return False
+
+        except Exception as e:
+
+            print(
+                f"RUNNING CHECK ERROR: {e}"
+            )
+
+            return False
+
+    # =================================
+    # CLOSE APPLICATION
     # =================================
 
     def close(self, app_name: str):
@@ -221,7 +318,9 @@ class Apps:
 
             process_name = app_name
 
-            if not process_name.endswith(".exe"):
+            if not process_name.endswith(
+                ".exe"
+            ):
 
                 process_name += ".exe"
 
@@ -257,5 +356,9 @@ class Apps:
                 f"I couldn't close {app_name}."
             )
 
+
+# =====================================
+# CREATE APP MANAGER
+# =====================================
 
 apps = Apps()

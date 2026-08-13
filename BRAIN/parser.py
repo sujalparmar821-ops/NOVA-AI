@@ -35,18 +35,133 @@ class Parser:
             "for me",
             "i want to",
             "i would like to",
+            "nova",
         ]
 
-        for word in fillers:
-
+        for filler in fillers:
             text = text.replace(
-                word,
+                filler,
                 ""
             )
 
-        text = " ".join(
-            text.split()
-        )
+        text = " ".join(text.split())
+
+        # =================================
+        # GOOGLE SEARCH
+        # =================================
+
+        google_patterns = [
+            r"^search google for (.+)$",
+            r"^google search for (.+)$",
+            r"^search google (.+)$",
+            r"^google (.+)$",
+        ]
+
+        for pattern in google_patterns:
+
+            match = re.match(
+                pattern,
+                text
+            )
+
+            if match:
+
+                query = match.group(1).strip()
+
+                if query:
+                    return f"google search {query}"
+
+        # =================================
+        # YOUTUBE SEARCH
+        # =================================
+
+        youtube_patterns = [
+            r"^search youtube for (.+)$",
+            r"^youtube search for (.+)$",
+            r"^search youtube (.+)$",
+            r"^youtube (.+)$",
+        ]
+
+        for pattern in youtube_patterns:
+
+            match = re.match(
+                pattern,
+                text
+            )
+
+            if match:
+
+                query = match.group(1).strip()
+
+                if query:
+                    return f"youtube search {query}"
+
+        # =================================
+        # OPEN WEBSITES
+        # =================================
+
+        website_commands = {
+
+            "open google":
+                "web open google",
+
+            "launch google":
+                "web open google",
+
+            "start google":
+                "web open google",
+
+            "open youtube":
+                "web open youtube",
+
+            "launch youtube":
+                "web open youtube",
+
+            "start youtube":
+                "web open youtube",
+
+            "open gmail":
+                "web open gmail",
+
+            "launch gmail":
+                "web open gmail",
+
+            "start gmail":
+                "web open gmail",
+
+            "open email":
+                "web open gmail",
+
+            "open my email":
+                "web open gmail",
+
+            "open github":
+                "web open github",
+
+            "launch github":
+                "web open github",
+
+            "start github":
+                "web open github",
+
+            "open chatgpt":
+                "web open chatgpt",
+
+            "open chat gpt":
+                "web open chatgpt",
+
+            "launch chatgpt":
+                "web open chatgpt",
+
+            "launch chat gpt":
+                "web open chatgpt",
+
+            "start chatgpt":
+                "web open chatgpt",
+        }
+
+        if text in website_commands:
+            return website_commands[text]
 
         # =================================
         # FILE TYPE SEARCH
@@ -104,8 +219,8 @@ class Parser:
         }
 
         type_match = re.match(
-            r"^(?:find|search for|search)\s+"
-            r"(?:all\s+)?(.+?)"
+            r"^(?:find|search for|search)"
+            r"\s+(?:all\s+)?(.+?)"
             r"(?:\s+files?)?$",
             text
         )
@@ -113,8 +228,7 @@ class Parser:
         if type_match:
 
             requested_type = (
-                type_match.group(1)
-                .strip()
+                type_match.group(1).strip()
             )
 
             if requested_type in file_type_aliases:
@@ -124,7 +238,8 @@ class Parser:
                 ]
 
                 return (
-                    f"file type search {extension}"
+                    f"file type search "
+                    f"{extension}"
                 )
 
         # =================================
@@ -137,7 +252,7 @@ class Parser:
                 "desktop",
                 "my desktop",
                 "desktop folder",
-                "my desktop folder"
+                "my desktop folder",
             ],
 
             "downloads": [
@@ -148,7 +263,7 @@ class Parser:
                 "download folder",
                 "downloads folder",
                 "my download folder",
-                "my downloads folder"
+                "my downloads folder",
             ],
 
             "documents": [
@@ -159,7 +274,7 @@ class Parser:
                 "document folder",
                 "documents folder",
                 "my document folder",
-                "my documents folder"
+                "my documents folder",
             ],
 
             "pictures": [
@@ -170,7 +285,7 @@ class Parser:
                 "picture folder",
                 "pictures folder",
                 "my picture folder",
-                "my pictures folder"
+                "my pictures folder",
             ],
 
             "videos": [
@@ -181,30 +296,30 @@ class Parser:
                 "video folder",
                 "videos folder",
                 "my video folder",
-                "my videos folder"
+                "my videos folder",
             ],
 
             "music": [
                 "music",
                 "my music",
                 "music folder",
-                "my music folder"
-            ]
+                "my music folder",
+            ],
         }
 
         # =================================
         # OPEN COMMON FOLDER
         # =================================
 
-        open_folder_patterns = [
+        open_folder_actions = [
             "open",
             "launch",
             "start",
             "show",
-            "go to"
+            "go to",
         ]
 
-        for action in open_folder_patterns:
+        for action in open_folder_actions:
 
             for folder_name, aliases in folders.items():
 
@@ -222,17 +337,16 @@ class Parser:
         # =================================
 
         create_match = re.match(
-            r"^(?:create|make|new)\s+"
-            r"(?:a\s+)?folder\s+"
-            r"(?:called|named)\s+(.+)$",
+            r"^(?:create|make|new)"
+            r"\s+(?:a\s+)?folder"
+            r"\s+(?:called|named)\s+(.+)$",
             text
         )
 
         if create_match:
 
             folder_name = (
-                create_match.group(1)
-                .strip()
+                create_match.group(1).strip()
             )
 
             return (
@@ -241,78 +355,127 @@ class Parser:
             )
 
         # =================================
-        # FILE SEARCH
-        # =================================
-
-        search_match = re.match(
-            r"^(?:find|search for|search)\s+"
-            r"(?:my\s+)?(.+)$",
-            text
-        )
-
-        if search_match:
-
-            query = (
-                search_match.group(1)
-                .strip()
-            )
-
-            if query not in [
-                "google",
-                "youtube"
-            ]:
-
-                return (
-                    f"file search "
-                    f"{query}"
-                )
-
-        # =================================
         # WINDOW CONTROLS
         # =================================
 
-        if text in [
-            "minimize this window",
-            "minimize the window",
-            "minimize window",
-            "minimize this",
+        minimize_commands = [
             "minimize",
-        ]:
+            "minimise",
+            "minimize this",
+            "minimise this",
+            "minimize window",
+            "minimise window",
+            "minimize the window",
+            "minimise the window",
+            "minimize this window",
+            "minimise this window",
+            "minimize current window",
+            "minimise current window",
+            "minimize the current window",
+            "minimise the current window",
+            "window minimize",
+            "window minimise",
+        ]
 
+        if text in minimize_commands:
             return "window minimize"
 
-        if text in [
-            "maximize this window",
-            "maximize the window",
-            "maximize window",
-            "maximize this",
+        maximize_commands = [
             "maximize",
-        ]:
+            "maximise",
+            "maximize this",
+            "maximise this",
+            "maximize window",
+            "maximise window",
+            "maximize the window",
+            "maximise the window",
+            "maximize this window",
+            "maximise this window",
+            "maximize current window",
+            "maximise current window",
+            "maximize the current window",
+            "maximise the current window",
+            "window maximize",
+            "window maximise",
+        ]
 
+        if text in maximize_commands:
             return "window maximize"
 
-        if text in [
-            "close this window",
-            "close the window",
-            "close window",
+        close_commands = [
+            "close",
             "close this",
-        ]:
+            "close window",
+            "close the window",
+            "close this window",
+            "close current window",
+            "close the current window",
+            "window close",
+        ]
 
+        if text in close_commands:
             return "window close"
 
-        if text in [
+        show_desktop_commands = [
+            "show desktop",
             "show my desktop",
             "show the desktop",
-            "show desktop",
             "go to desktop",
             "go to my desktop",
             "display desktop",
-        ]:
+            "display my desktop",
+            "minimize everything",
+            "show me the desktop",
+            "window show desktop",
+        ]
 
+        if text in show_desktop_commands:
             return "window show desktop"
 
         # =================================
-        # CLIPBOARD SEARCH
+        # APPLICATION FOCUS
+        # =================================
+
+        focus_match = re.match(
+            r"^(?:switch to|focus|bring)"
+            r"\s+(.+?)"
+            r"(?:\s+to the front)?$",
+            text
+        )
+
+        if focus_match:
+
+            app_name = (
+                focus_match.group(1).strip()
+            )
+
+            if app_name:
+                return (
+                    f"window focus "
+                    f"{app_name}"
+                )
+
+        # =================================
+        # NEXT WINDOW
+        # =================================
+
+        if text in [
+            "switch window",
+            "switch windows",
+            "switch to next window",
+            "switch to the next window",
+            "next window",
+            "alt tab",
+            "switch application",
+            "switch applications",
+            "switch app",
+            "switch apps",
+        ]:
+
+            return "window switch next"
+
+        # =================================
+        # CLIPBOARD
         # =================================
 
         if text in [
@@ -326,12 +489,9 @@ class Parser:
 
             return "clipboard search"
 
-        # =================================
-        # CLIPBOARD WRITE
-        # =================================
-
         clipboard_write_match = re.match(
-            r"^(?:copy|put|save)\s+(.+?)\s+"
+            r"^(?:copy|put|save)"
+            r"\s+(.+?)\s+"
             r"(?:to|into)\s+"
             r"(?:my\s+|the\s+)?clipboard$",
             text
@@ -340,20 +500,14 @@ class Parser:
         if clipboard_write_match:
 
             content = (
-                clipboard_write_match.group(1)
-                .strip()
+                clipboard_write_match.group(1).strip()
             )
 
             if content:
-
                 return (
                     f"clipboard write "
                     f"{content}"
                 )
-
-        # =================================
-        # CLIPBOARD CLEAR
-        # =================================
 
         if text in [
             "clear my clipboard",
@@ -366,10 +520,6 @@ class Parser:
 
             return "clipboard clear"
 
-        # =================================
-        # CLIPBOARD READ
-        # =================================
-
         if text in [
             "read my clipboard",
             "read the clipboard",
@@ -380,7 +530,7 @@ class Parser:
             "show me my clipboard",
             "show my clipboard",
             "tell me whats on my clipboard",
-            "tell me what is on my clipboard"
+            "tell me what is on my clipboard",
         ]:
 
             return "clipboard read"
@@ -403,113 +553,7 @@ class Parser:
             return "screenshot take"
 
         # =================================
-        # GOOGLE SEARCH
-        # =================================
-
-        google_match = re.match(
-            r"^(?:search google for|google search for)\s+(.+)$",
-            text
-        )
-
-        if google_match:
-
-            query = (
-                google_match.group(1)
-                .strip()
-            )
-
-            return (
-                f"google search "
-                f"{query}"
-            )
-
-        # =================================
-        # YOUTUBE SEARCH
-        # =================================
-
-        youtube_match = re.match(
-            r"^(?:search youtube for|youtube search for)\s+(.+)$",
-            text
-        )
-
-        if youtube_match:
-
-            query = (
-                youtube_match.group(1)
-                .strip()
-            )
-
-            return (
-                f"youtube search "
-                f"{query}"
-            )
-
-        # =================================
-        # OPEN GOOGLE
-        # =================================
-
-        if text in [
-            "open google",
-            "launch google",
-            "start google",
-        ]:
-
-            return "web open google"
-
-        # =================================
-        # OPEN YOUTUBE
-        # =================================
-
-        if text in [
-            "open youtube",
-            "launch youtube",
-            "start youtube",
-        ]:
-
-            return "web open youtube"
-
-        # =================================
-        # OPEN GMAIL
-        # =================================
-
-        if text in [
-            "open gmail",
-            "launch gmail",
-            "start gmail",
-            "open email",
-            "open my email",
-        ]:
-
-            return "web open gmail"
-
-        # =================================
-        # OPEN GITHUB
-        # =================================
-
-        if text in [
-            "open github",
-            "launch github",
-            "start github",
-        ]:
-
-            return "web open github"
-
-        # =================================
-        # OPEN CHATGPT
-        # =================================
-
-        if text in [
-            "open chatgpt",
-            "open chat gpt",
-            "launch chatgpt",
-            "launch chat gpt",
-            "start chatgpt",
-        ]:
-
-            return "web open chatgpt"
-
-        # =================================
-        # MEDIA CONTROLS
+        # MEDIA
         # =================================
 
         if text in [
@@ -523,11 +567,6 @@ class Parser:
             "resume the music",
             "resume media",
             "resume the media",
-        ]:
-
-            return "media play pause"
-
-        if text in [
             "pause",
             "pause music",
             "pause the music",
@@ -568,7 +607,7 @@ class Parser:
             return "media previous"
 
         # =================================
-        # SYSTEM CONTROLS
+        # SYSTEM
         # =================================
 
         if text in [
@@ -626,12 +665,8 @@ class Parser:
             return "system shutdown"
 
         # =================================
-        # MOUSE CONTROLS
+        # MOUSE
         # =================================
-
-        # ---------------------------------
-        # MOVE MOUSE TO POSITION
-        # ---------------------------------
 
         if text.startswith("move the mouse to "):
 
@@ -639,19 +674,13 @@ class Parser:
                 len("move the mouse to "):
             ].strip()
 
-            position = position.replace(
-                "the ",
-                "",
-                1
-            ).strip()
-
             if position in [
                 "centre",
                 "center",
                 "middle",
                 "centre of the screen",
                 "center of the screen",
-                "middle of the screen"
+                "middle of the screen",
             ]:
 
                 return "mouse position centre"
@@ -662,30 +691,20 @@ class Parser:
                 len("move mouse to "):
             ].strip()
 
-            position = position.replace(
-                "the ",
-                "",
-                1
-            ).strip()
-
             if position in [
                 "centre",
                 "center",
                 "middle",
                 "centre of the screen",
                 "center of the screen",
-                "middle of the screen"
+                "middle of the screen",
             ]:
 
                 return "mouse position centre"
 
-        # ---------------------------------
-        # MOVE MOUSE TO COORDINATES
-        # ---------------------------------
-
         mouse_move_match = re.match(
-            r"^move (?:the )?mouse "
-            r"(?:to )?(\d+)\s+(\d+)$",
+            r"^move (?:the )?mouse"
+            r"(?: to)?\s+(\d+)\s+(\d+)$",
             text
         )
 
@@ -699,10 +718,6 @@ class Parser:
                 f"{x} {y}"
             )
 
-        # ---------------------------------
-        # LEFT CLICK
-        # ---------------------------------
-
         if text in [
             "click",
             "mouse click",
@@ -712,10 +727,6 @@ class Parser:
         ]:
 
             return "mouse click"
-
-        # ---------------------------------
-        # DOUBLE CLICK
-        # ---------------------------------
 
         if text in [
             "double click",
@@ -727,10 +738,6 @@ class Parser:
 
             return "mouse double click"
 
-        # ---------------------------------
-        # RIGHT CLICK
-        # ---------------------------------
-
         if text in [
             "right click",
             "mouse right click",
@@ -739,10 +746,6 @@ class Parser:
         ]:
 
             return "mouse right click"
-
-        # ---------------------------------
-        # SCROLL UP
-        # ---------------------------------
 
         if text in [
             "scroll up",
@@ -754,10 +757,6 @@ class Parser:
 
             return "mouse scroll up"
 
-        # ---------------------------------
-        # SCROLL DOWN
-        # ---------------------------------
-
         if text in [
             "scroll down",
             "scroll downwards",
@@ -768,14 +767,9 @@ class Parser:
 
             return "mouse scroll down"
 
-
         # =================================
-        # KEYBOARD CONTROLS
+        # KEYBOARD
         # =================================
-
-        # ---------------------------------
-        # SINGLE KEYS
-        # ---------------------------------
 
         keyboard_keys = {
 
@@ -830,237 +824,144 @@ class Parser:
             "f12": "f12",
         }
 
-        # ---------------------------------
-        # PRESS A KEY
-        # ---------------------------------
-
-        if text.startswith("press "):
-
-            key = text.replace(
-                "press ",
-                "",
-                1
-            ).strip()
-
-            if key in keyboard_keys:
-
-                return (
-                    "keyboard press "
-                    + keyboard_keys[key]
-                )
-
-        # ---------------------------------
-        # PRESS THE KEY
-        # ---------------------------------
-
-        if text.startswith("press the "):
-
-            key = text.replace(
-                "press the ",
-                "",
-                1
-            ).strip()
-
-            if key in keyboard_keys:
-
-                return (
-                    "keyboard press "
-                    + keyboard_keys[key]
-                )
-
-        # ---------------------------------
-        # COMMON KEY COMBINATIONS
-        # ---------------------------------
-
         hotkeys = {
 
-            "ctrl c": [
-                "ctrl",
-                "c"
-            ],
+            "ctrl c": ["ctrl", "c"],
+            "control c": ["ctrl", "c"],
 
-            "control c": [
-                "ctrl",
-                "c"
-            ],
+            "ctrl v": ["ctrl", "v"],
+            "control v": ["ctrl", "v"],
 
-            "ctrl v": [
-                "ctrl",
-                "v"
-            ],
+            "ctrl x": ["ctrl", "x"],
+            "control x": ["ctrl", "x"],
 
-            "control v": [
-                "ctrl",
-                "v"
-            ],
+            "ctrl a": ["ctrl", "a"],
+            "control a": ["ctrl", "a"],
 
-            "ctrl x": [
-                "ctrl",
-                "x"
-            ],
+            "ctrl z": ["ctrl", "z"],
+            "control z": ["ctrl", "z"],
 
-            "control x": [
-                "ctrl",
-                "x"
-            ],
+            "ctrl s": ["ctrl", "s"],
+            "control s": ["ctrl", "s"],
 
-            "ctrl a": [
-                "ctrl",
-                "a"
-            ],
+            "ctrl f": ["ctrl", "f"],
+            "control f": ["ctrl", "f"],
 
-            "control a": [
-                "ctrl",
-                "a"
-            ],
-
-            "ctrl z": [
-                "ctrl",
-                "z"
-            ],
-
-            "control z": [
-                "ctrl",
-                "z"
-            ],
-
-            "ctrl s": [
-                "ctrl",
-                "s"
-            ],
-
-            "control s": [
-                "ctrl",
-                "s"
-            ],
-
-            "ctrl f": [
-                "ctrl",
-                "f"
-            ],
-
-            "control f": [
-                "ctrl",
-                "f"
-            ],
-
-            "alt tab": [
-                "alt",
-                "tab"
-            ],
-
-            "alt f4": [
-                "alt",
-                "f4"
-            ],
+            "alt tab": ["alt", "tab"],
+            "alt f4": ["alt", "f4"],
 
             "ctrl shift esc": [
                 "ctrl",
                 "shift",
-                "esc"
+                "esc",
             ],
 
             "control shift escape": [
                 "ctrl",
                 "shift",
-                "esc"
+                "esc",
             ],
         }
 
-        # ---------------------------------
-        # PRESS KEY COMBINATION
-        # ---------------------------------
-
         if text.startswith("press "):
 
-            combination = text.replace(
-                "press ",
-                "",
-                1
-            ).strip()
+            key = text[
+                len("press "):
+            ].strip()
 
-            if combination in hotkeys:
-
-                keys = hotkeys[
-                    combination
-                ]
-
+            if key in hotkeys:
                 return (
                     "keyboard hotkey "
-                    + " ".join(keys)
+                    + " ".join(hotkeys[key])
+                )
+
+            if key in keyboard_keys:
+                return (
+                    "keyboard press "
+                    + keyboard_keys[key]
                 )
 
         if text.startswith("press the "):
 
-            combination = text.replace(
-                "press the ",
-                "",
-                1
-            ).strip()
+            key = text[
+                len("press the "):
+            ].strip()
 
-            if combination in hotkeys:
-
-                keys = hotkeys[
-                    combination
-                ]
-
+            if key in hotkeys:
                 return (
                     "keyboard hotkey "
-                    + " ".join(keys)
+                    + " ".join(hotkeys[key])
+                )
+
+            if key in keyboard_keys:
+                return (
+                    "keyboard press "
+                    + keyboard_keys[key]
                 )
 
         # =================================
         # BRIGHTNESS
         # =================================
 
+        brightness_match = re.search(
+            r"(?:brightness|screen brightness|screen)"
+            r"\s+(?:to|at)?\s*(\d+)"
+            r"\s*(?:percent|%)?",
+            text
+        )
+
+        if brightness_match:
+
+            percentage = brightness_match.group(1)
+
+            return (
+                f"brightness set "
+                f"{percentage}"
+            )
+
         if any(
-            word in text.split()
-            for word in [
-                "brightness",
-                "bright",
-                "dim"
+            phrase in text
+            for phrase in [
+                "increase brightness",
+                "increase the brightness",
+                "raise brightness",
+                "raise the brightness",
+                "make it brighter",
+                "make the screen brighter",
+                "brighter",
+                "brightness up",
+                "brightness higher",
+                "screen brighter",
             ]
         ):
 
-            match = re.search(
-                r"(?:brightness|bright|screen)\s+"
-                r"(?:to\s+)?(\d+)\s*"
-                r"(?:percent|%)?",
-                text
-            )
+            return "brightness increase"
 
-            if match:
+        if any(
+            phrase in text
+            for phrase in [
+                "decrease brightness",
+                "decrease the brightness",
+                "lower brightness",
+                "lower the brightness",
+                "make it dimmer",
+                "make the screen dimmer",
+                "dimmer",
+                "brightness down",
+                "brightness lower",
+                "screen dimmer",
+            ]
+        ):
 
-                return (
-                    f"brightness set "
-                    f"{match.group(1)}"
-                )
+            return "brightness decrease"
 
-            if any(
-                word in text
-                for word in [
-                    "increase",
-                    "raise",
-                    "higher",
-                    "up",
-                    "brighter"
-                ]
-            ):
-
-                return "brightness increase"
-
-            if any(
-                word in text
-                for word in [
-                    "decrease",
-                    "lower",
-                    "down",
-                    "dimmer",
-                    "dim"
-                ]
-            ):
-
-                return "brightness decrease"
+        if text in [
+            "what is my brightness",
+            "what is the brightness",
+            "brightness",
+            "check brightness",
+            "check the brightness",
+        ]:
 
             return "brightness get"
 
@@ -1068,64 +969,84 @@ class Parser:
         # VOLUME
         # =================================
 
+        volume_match = re.search(
+            r"(?:volume|sound|audio)"
+            r"\s+(?:to|at)?\s*(\d+)"
+            r"\s*(?:percent|%)?",
+            text
+        )
+
+        if volume_match:
+
+            percentage = volume_match.group(1)
+
+            return (
+                f"volume set "
+                f"{percentage}"
+            )
+
+        if text in [
+            "mute",
+            "mute volume",
+            "mute sound",
+            "mute audio",
+        ]:
+
+            return "volume mute"
+
+        if text in [
+            "unmute",
+            "unmute volume",
+            "unmute sound",
+            "unmute audio",
+        ]:
+
+            return "volume unmute"
+
         if any(
-            word in text.split()
-            for word in [
-                "volume",
-                "sound",
-                "audio",
-                "mute",
-                "unmute"
+            phrase in text
+            for phrase in [
+                "increase volume",
+                "increase the volume",
+                "raise volume",
+                "raise the volume",
+                "make it louder",
+                "make the sound louder",
+                "volume up",
+                "volume higher",
+                "louder",
+                "sound up",
             ]
         ):
 
-            if "unmute" in text:
+            return "volume increase"
 
-                return "volume unmute"
+        if any(
+            phrase in text
+            for phrase in [
+                "decrease volume",
+                "decrease the volume",
+                "lower volume",
+                "lower the volume",
+                "make it quieter",
+                "make the sound quieter",
+                "volume down",
+                "volume lower",
+                "quieter",
+                "sound down",
+            ]
+        ):
 
-            if "mute" in text:
+            return "volume decrease"
 
-                return "volume mute"
-
-            match = re.search(
-                r"(?:volume|sound|audio)\s+"
-                r"(?:to\s+)?(\d+)\s*"
-                r"(?:percent|%)?",
-                text
-            )
-
-            if match:
-
-                return (
-                    f"volume set "
-                    f"{match.group(1)}"
-                )
-
-            if any(
-                word in text
-                for word in [
-                    "increase",
-                    "raise",
-                    "higher",
-                    "up",
-                    "louder"
-                ]
-            ):
-
-                return "volume increase"
-
-            if any(
-                word in text
-                for word in [
-                    "decrease",
-                    "lower",
-                    "down",
-                    "quieter",
-                    "quiet"
-                ]
-            ):
-
-                return "volume decrease"
+        if text in [
+            "what is my volume",
+            "what is the volume",
+            "check volume",
+            "check the volume",
+            "volume",
+            "how loud is it",
+        ]:
 
             return "volume get"
 
@@ -1155,22 +1076,16 @@ class Parser:
             for word in weather_words
         ):
 
-            city = self.extract_city(
-                text
-            )
+            city = self.extract_city(text)
 
             if city:
+                return f"weather in {city}"
 
-                return (
-                    f"weather in "
-                    f"{city}"
-                )
+            return "weather"
 
-            return "weather" 
-
-                # ---------------------------------
+        # =================================
         # TYPE TEXT
-        # ---------------------------------
+        # =================================
 
         if text.startswith("type "):
 
@@ -1179,31 +1094,105 @@ class Parser:
             ].strip()
 
             if content:
-
                 return (
                     "keyboard type "
                     + content
                 )
 
         # =================================
-        # RETURN CLEANED COMMAND
+        # OPEN APPLICATION
+        # =================================
+
+        if text.startswith("open "):
+
+            app = text[
+                len("open "):
+            ].strip()
+
+            if app:
+                return f"open {app}"
+
+        # =================================
+        # CLOSE APPLICATION
+        # =================================
+
+        if text.startswith("close "):
+
+            app = text[
+                len("close "):
+            ].strip()
+
+            if app:
+                return f"close {app}"
+
+        # =================================
+        # GENERIC FILE SEARCH
+        # =================================
+
+        search_match = re.match(
+            r"^(?:find|search for|search)"
+            r"\s+(?:my\s+)?(.+)$",
+            text
+        )
+
+        if search_match:
+
+            query = (
+                search_match.group(1).strip()
+            )
+
+            if query not in [
+                "google",
+                "youtube",
+                "google for",
+                "youtube for",
+            ]:
+
+                return f"file search {query}"
+
+        # =================================
+        # TIME
+        # =================================
+
+        if text in [
+            "what time is it",
+            "what is the time",
+            "tell me the time",
+            "whats the time",
+        ]:
+
+            return "what time is it"
+
+        # =================================
+        # DATE
+        # =================================
+
+        if text in [
+            "what is todays date",
+            "what is the date",
+            "tell me the date",
+            "whats the date",
+            "whats todays date",
+        ]:
+
+            return "what is todays date"
+
+        # =================================
+        # RETURN CLEANED TEXT
         # =================================
 
         return text
 
-    # =================================
+    # =====================================
     # EXTRACT CITY
-    # =================================
+    # =====================================
 
     def extract_city(self, text):
 
         patterns = [
-
             r"\bin\s+([a-zA-Z\s]+)$",
-
             r"\bat\s+([a-zA-Z\s]+)$",
-
-            r"\bfor\s+([a-zA-Z\s]+)$"
+            r"\bfor\s+([a-zA-Z\s]+)$",
         ]
 
         for pattern in patterns:
@@ -1216,8 +1205,7 @@ class Parser:
             if match:
 
                 city = (
-                    match.group(1)
-                    .strip()
+                    match.group(1).strip()
                 )
 
                 city = re.sub(
@@ -1227,7 +1215,6 @@ class Parser:
                 ).strip()
 
                 if city:
-
                     return city
 
         return None
