@@ -768,6 +768,247 @@ class Parser:
 
             return "mouse scroll down"
 
+
+        # =================================
+        # KEYBOARD CONTROLS
+        # =================================
+
+        # ---------------------------------
+        # SINGLE KEYS
+        # ---------------------------------
+
+        keyboard_keys = {
+
+            "enter": "enter",
+            "return": "enter",
+
+            "escape": "esc",
+            "esc": "esc",
+
+            "tab": "tab",
+
+            "space": "space",
+            "spacebar": "space",
+
+            "backspace": "backspace",
+            "back space": "backspace",
+
+            "delete": "delete",
+            "del": "delete",
+
+            "up": "up",
+            "up arrow": "up",
+
+            "down": "down",
+            "down arrow": "down",
+
+            "left": "left",
+            "left arrow": "left",
+
+            "right": "right",
+            "right arrow": "right",
+
+            "home": "home",
+            "end": "end",
+
+            "page up": "pageup",
+            "page down": "pagedown",
+
+            "insert": "insert",
+
+            "f1": "f1",
+            "f2": "f2",
+            "f3": "f3",
+            "f4": "f4",
+            "f5": "f5",
+            "f6": "f6",
+            "f7": "f7",
+            "f8": "f8",
+            "f9": "f9",
+            "f10": "f10",
+            "f11": "f11",
+            "f12": "f12",
+        }
+
+        # ---------------------------------
+        # PRESS A KEY
+        # ---------------------------------
+
+        if text.startswith("press "):
+
+            key = text.replace(
+                "press ",
+                "",
+                1
+            ).strip()
+
+            if key in keyboard_keys:
+
+                return (
+                    "keyboard press "
+                    + keyboard_keys[key]
+                )
+
+        # ---------------------------------
+        # PRESS THE KEY
+        # ---------------------------------
+
+        if text.startswith("press the "):
+
+            key = text.replace(
+                "press the ",
+                "",
+                1
+            ).strip()
+
+            if key in keyboard_keys:
+
+                return (
+                    "keyboard press "
+                    + keyboard_keys[key]
+                )
+
+        # ---------------------------------
+        # COMMON KEY COMBINATIONS
+        # ---------------------------------
+
+        hotkeys = {
+
+            "ctrl c": [
+                "ctrl",
+                "c"
+            ],
+
+            "control c": [
+                "ctrl",
+                "c"
+            ],
+
+            "ctrl v": [
+                "ctrl",
+                "v"
+            ],
+
+            "control v": [
+                "ctrl",
+                "v"
+            ],
+
+            "ctrl x": [
+                "ctrl",
+                "x"
+            ],
+
+            "control x": [
+                "ctrl",
+                "x"
+            ],
+
+            "ctrl a": [
+                "ctrl",
+                "a"
+            ],
+
+            "control a": [
+                "ctrl",
+                "a"
+            ],
+
+            "ctrl z": [
+                "ctrl",
+                "z"
+            ],
+
+            "control z": [
+                "ctrl",
+                "z"
+            ],
+
+            "ctrl s": [
+                "ctrl",
+                "s"
+            ],
+
+            "control s": [
+                "ctrl",
+                "s"
+            ],
+
+            "ctrl f": [
+                "ctrl",
+                "f"
+            ],
+
+            "control f": [
+                "ctrl",
+                "f"
+            ],
+
+            "alt tab": [
+                "alt",
+                "tab"
+            ],
+
+            "alt f4": [
+                "alt",
+                "f4"
+            ],
+
+            "ctrl shift esc": [
+                "ctrl",
+                "shift",
+                "esc"
+            ],
+
+            "control shift escape": [
+                "ctrl",
+                "shift",
+                "esc"
+            ],
+        }
+
+        # ---------------------------------
+        # PRESS KEY COMBINATION
+        # ---------------------------------
+
+        if text.startswith("press "):
+
+            combination = text.replace(
+                "press ",
+                "",
+                1
+            ).strip()
+
+            if combination in hotkeys:
+
+                keys = hotkeys[
+                    combination
+                ]
+
+                return (
+                    "keyboard hotkey "
+                    + " ".join(keys)
+                )
+
+        if text.startswith("press the "):
+
+            combination = text.replace(
+                "press the ",
+                "",
+                1
+            ).strip()
+
+            if combination in hotkeys:
+
+                keys = hotkeys[
+                    combination
+                ]
+
+                return (
+                    "keyboard hotkey "
+                    + " ".join(keys)
+                )
+
         # =================================
         # BRIGHTNESS
         # =================================
@@ -925,7 +1166,24 @@ class Parser:
                     f"{city}"
                 )
 
-            return "weather"
+            return "weather" 
+
+                # ---------------------------------
+        # TYPE TEXT
+        # ---------------------------------
+
+        if text.startswith("type "):
+
+            content = text[
+                len("type "):
+            ].strip()
+
+            if content:
+
+                return (
+                    "keyboard type "
+                    + content
+                )
 
         # =================================
         # RETURN CLEANED COMMAND

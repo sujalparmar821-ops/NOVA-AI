@@ -17,7 +17,7 @@ from COMMANDS.clipboard import clipboard
 from COMMANDS.screenshot import screenshot
 from COMMANDS.window import window
 from COMMANDS.mouse import mouse
-
+from COMMANDS.keyboard import keyboard
 
 class Dispatcher:
 
@@ -455,6 +455,81 @@ class Dispatcher:
         if command == "mouse scroll down":
 
             return mouse.scroll_down()
+
+                # =================================
+        # KEYBOARD CONTROLS
+        # =================================
+
+        # ---------------------------------
+        # PRESS KEY
+        # ---------------------------------
+
+        if command.startswith("keyboard press "):
+
+            key = command.replace(
+                "keyboard press ",
+                "",
+                1
+            ).strip()
+
+            if not key:
+
+                return (
+                    "Please tell me which "
+                    "key to press."
+                )
+
+            return keyboard.press(
+                key
+            )
+
+        # ---------------------------------
+        # KEY COMBINATION
+        # ---------------------------------
+
+        if command.startswith("keyboard hotkey "):
+
+            keys = command.replace(
+                "keyboard hotkey ",
+                "",
+                1
+            ).strip()
+
+            if not keys:
+
+                return (
+                    "Please tell me which "
+                    "keys to press."
+                )
+
+            key_list = keys.split()
+
+            return keyboard.hotkey(
+                *key_list
+            )
+
+        # ---------------------------------
+        # TYPE TEXT
+        # ---------------------------------
+
+        if command.startswith("keyboard type "):
+
+            content = command.replace(
+                "keyboard type ",
+                "",
+                1
+            ).strip()
+
+            if not content:
+
+                return (
+                    "Please tell me what "
+                    "you want me to type."
+                )
+
+            return keyboard.type_text(
+                content
+            )
 
         # =================================
         # CLOSE APPLICATION
