@@ -48,11 +48,29 @@ class Mouse:
 
         try:
 
-            screen_width, screen_height = pyautogui.size()
+            screen_width, screen_height = (
+                pyautogui.size()
+            )
+
+            position = (
+                position
+                .lower()
+                .strip()
+            )
 
             positions = {
 
                 "centre": (
+                    screen_width // 2,
+                    screen_height // 2
+                ),
+
+                "center": (
+                    screen_width // 2,
+                    screen_height // 2
+                ),
+
+                "middle": (
                     screen_width // 2,
                     screen_height // 2
                 ),
@@ -75,14 +93,54 @@ class Mouse:
                 "bottom right": (
                     screen_width - 10,
                     screen_height - 10
-                )
+                ),
+
+                "top centre": (
+                    screen_width // 2,
+                    10
+                ),
+
+                "top center": (
+                    screen_width // 2,
+                    10
+                ),
+
+                "bottom centre": (
+                    screen_width // 2,
+                    screen_height - 10
+                ),
+
+                "bottom center": (
+                    screen_width // 2,
+                    screen_height - 10
+                ),
+
+                "left centre": (
+                    10,
+                    screen_height // 2
+                ),
+
+                "left center": (
+                    10,
+                    screen_height // 2
+                ),
+
+                "right centre": (
+                    screen_width - 10,
+                    screen_height // 2
+                ),
+
+                "right center": (
+                    screen_width - 10,
+                    screen_height // 2
+                ),
             }
 
             if position not in positions:
 
                 return (
-                    f"I don't know where "
-                    f"{position} is."
+                    f"I don't recognize the "
+                    f"mouse position {position}."
                 )
 
             x, y = positions[position]
@@ -90,12 +148,23 @@ class Mouse:
             pyautogui.moveTo(
                 x,
                 y,
-                duration=0.2
+                duration=0.3
             )
 
+            if position in [
+                "centre",
+                "center",
+                "middle"
+            ]:
+
+                return (
+                    "Moved the mouse "
+                    "to the centre."
+                )
+
             return (
-                f"Moved the mouse to "
-                f"{position}."
+                f"Moved the mouse "
+                f"to the {position}."
             )
 
         except Exception as e:
@@ -143,7 +212,9 @@ class Mouse:
 
             pyautogui.doubleClick()
 
-            return "Done. I double-clicked."
+            return (
+                "Done. I double-clicked."
+            )
 
         except Exception as e:
 
@@ -167,7 +238,9 @@ class Mouse:
 
             pyautogui.rightClick()
 
-            return "Done. I right-clicked."
+            return (
+                "Done. I right-clicked."
+            )
 
         except Exception as e:
 
@@ -191,7 +264,9 @@ class Mouse:
 
             pyautogui.scroll(5)
 
-            return "Done. I scrolled up."
+            return (
+                "Done. I scrolled up."
+            )
 
         except Exception as e:
 
@@ -215,7 +290,9 @@ class Mouse:
 
             pyautogui.scroll(-5)
 
-            return "Done. I scrolled down."
+            return (
+                "Done. I scrolled down."
+            )
 
         except Exception as e:
 
